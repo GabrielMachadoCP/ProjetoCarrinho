@@ -1,128 +1,77 @@
 # 🔗 Dependências do Projeto
 
-Algumas atividades do projeto dependem da conclusão de outras tarefas.
+Este documento representa as dependências da versão realmente construída do carrinho 2WD.
 
-O objetivo deste documento é identificar essas relações para evitar que uma tarefa seja iniciada sem que seus pré-requisitos estejam disponíveis.
-
----
-
-# 📊 Dependências
+## 📊 Dependências Principais
 
 | Tarefa | Depende de | Motivo |
 |---|---|---|
-| Instalação dos motores | Montagem do chassi | Os motores precisam ser fixados na estrutura |
-| Conexão da Ponte H | Instalação dos motores | A Ponte H será conectada aos motores |
-| Teste dos motores | Ponte H + alimentação | Os motores precisam receber alimentação e controle |
-| Leitura do joystick | Configuração do Arduino Mega | O controle precisa estar funcionando |
-| Comunicação Mega → ESP32 | Leitura do joystick | Os comandos precisam existir antes de serem transmitidos |
-| ESP-NOW | Configuração dos ESP32 | Os dois dispositivos precisam estar configurados |
-| ESP32 receptor | ESP-NOW | É necessário receber os pacotes enviados pelo controle |
-| Funções de movimentação | Ponte H + motores | O software precisa controlar hardware funcional |
-| Controle remoto completo | Joystick + ESP-NOW + receptor | Todas as etapas de comunicação devem estar integradas |
-| LEDs de freio | Função de parada | Os LEDs serão acionados junto ao comando de freio |
-| Detecção de obstáculos | Sensor instalado | O sensor precisa estar conectado e funcionando |
-| Parada automática | Sensor + função de parada | Depende da leitura do obstáculo e da capacidade de frear |
-| Failsafe | Comunicação funcionando | É necessário detectar quando os pacotes deixam de chegar |
-| Teste do MVP | Movimentação + controle + comunicação | Todos os elementos principais precisam estar integrados |
-| Teste final | MVP + funcionalidades Should Have | O produto precisa estar completo |
-| Apresentação final | Testes + documentação | Deve representar o funcionamento real do projeto |
+| Instalação dos motores | Montagem do chassi 2WD | Os motores precisam estar fixados na estrutura |
+| Conexão da L298N | Instalação dos motores | A ponte H controla diretamente os motores |
+| Teste dos motores | L298N + alimentação | É necessário validar sentido e funcionamento |
+| Funções de movimentação | Motores funcionando | O firmware precisa comandar hardware já validado |
+| Controle via Wi-Fi | ESP32 configurado | O ESP32 cria a rede e hospeda a interface |
+| Controle pelo iPhone | Servidor web funcionando | O navegador acessa a página criada pelo ESP32 |
+| Instalação do HC-SR04 | ESP32 e alimentação prontos | O sensor depende da alimentação e GPIOs |
+| Leitura segura do ECHO | Divisor resistivo 1 kΩ + 2 kΩ | O GPIO do ESP32 deve receber tensão reduzida |
+| Teste de distância | HC-SR04 conectado | O sensor deve estar fisicamente integrado |
+| Teste completo | Motores + Wi-Fi + alimentação | Todos os elementos básicos precisam funcionar juntos |
+| Operação sem computador | Power bank + pilhas AA | O carrinho precisa funcionar de forma independente |
+| TinyML | Sensor validado + dataset + modelo treinado | Evolução prevista para a segunda entrega |
 
 ---
 
-# 🔄 Fluxo Principal de Dependências
+## 🔄 Fluxo Principal
 
 ```text
-Montagem do Chassi
+Montagem do chassi 2WD
         ↓
-Instalação dos Motores
+Motores + roda boba
         ↓
-Ponte H
+Ponte H L298N
         ↓
-Alimentação
+Alimentação dos motores
         ↓
-Teste dos Motores
+Teste de movimentação
         ↓
-Funções de Movimentação
-```
-
-Paralelamente:
-
-```text
-Arduino Mega + Joystick
+ESP32 + firmware
         ↓
-Leitura dos Comandos
+Rede Wi-Fi + interface web
         ↓
-Arduino Mega → ESP32
+Controle pelo iPhone
         ↓
-ESP-NOW Transmissor
+Integração do HC-SR04
         ↓
-ESP-NOW Receptor
-        ↓
-Interpretação dos Comandos
-```
-
-Os dois fluxos se encontram em:
-
-```text
-Movimentação do Carrinho
-            +
-Controle Remoto
-            ↓
-      Integração Geral
-            ↓
-           MVP
+Teste completo
 ```
 
 ---
 
-# 🛡️ Funcionalidades Pós-MVP
+## 🔋 Dependência de Alimentação
 
-Após o funcionamento do MVP:
+O projeto utiliza duas fontes de energia:
 
 ```text
-MVP
- │
- ├── Sensor de Proximidade
- │        ↓
- │   Detecção de Obstáculo
- │        ↓
- │   Parada Automática
- │
- ├── Parada/Freio
- │        ↓
- │   LEDs de Freio
- │
- └── Comunicação
-          ↓
-       Failsafe
+Power bank → ESP32
+
+4 pilhas AA → L298N → motores
 ```
+
+Os dois circuitos compartilham o **GND**, necessário para que os sinais de controle do ESP32 sejam interpretados corretamente pela ponte H.
 
 ---
 
-# 🚨 Caminho Crítico
+## 🚨 Caminho Crítico
 
-As tarefas consideradas parte do caminho crítico são:
+As atividades que bloqueiam o funcionamento principal são:
 
 1. Montagem do chassi;
-2. Instalação dos motores;
-3. Ponte H;
+2. Instalação dos dois motores;
+3. Conexão da L298N;
 4. Alimentação;
-5. Leitura do controle;
-6. Comunicação entre os dispositivos;
-7. ESP-NOW;
-8. ESP32 receptor;
-9. Controle dos motores;
-10. Integração;
-11. Teste do MVP.
+5. Firmware de movimentação;
+6. Wi-Fi do ESP32;
+7. Interface de controle;
+8. Teste integrado.
 
-Caso alguma dessas tarefas fique bloqueada, o MVP também será impactado.
-
----
-
-# ⚠️ Regra para tarefas bloqueadas
-
-Caso uma tarefa não possa continuar devido a uma dependência:
-
-- A tarefa deverá ser marcada como **Bloqueada** no Kanban;
-- O motivo deverá ser registrado;
-- A equipe deverá priorizar a atividade que está causando o bloqueio.
+A integração do HC-SR04 é necessária para a etapa de sensoriamento e serve de base para a evolução com TinyML.
