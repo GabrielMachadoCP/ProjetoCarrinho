@@ -68,4 +68,4 @@ A primeira concepção do projeto considerava outros componentes que foram desca
 - Chassi 4WD;
 - LEDs traseiros de freio.
 
-> A parte de TinyML será documentada em uma etapa própria posteriormente.
+> A etapa de **TinyML foi concluída**. O dataset, treinamento, evidências e biblioteca do Edge Impulse estão documentados em [TinyML/README.md](../TinyML/README.md).
