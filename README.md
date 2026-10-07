@@ -1,15 +1,14 @@
-# 🤖 Carrinho Robô 4WD com Arduino Mega 2560 e ESP32
+# 🤖 Carrinho Robô 2WD com ESP32
 
-Projeto de um **carrinho robô 4WD controlado remotamente**, desenvolvido utilizando **Arduino Mega 2560**, **ESP32 com Joystick Shield**, sensores e motores DC.
+Projeto de um **carrinho robótico 2WD controlado por Wi-Fi**, desenvolvido com **ESP32 ESP-WROOM-32 DevKit V1**, ponte H L298N, dois motores DC e sensor ultrassônico HC-SR04.
 
-O objetivo do projeto é desenvolver um robô móvel capaz de receber comandos de movimentação remotamente, controlar quatro motores e identificar obstáculos através de um sensor de proximidade.
+A versão final do projeto utiliza **duas rodas motorizadas e uma roda boba**, substituindo o conceito inicial de chassi 4WD. O ESP32 é o único microcontrolador do sistema e também cria a rede Wi-Fi usada para controlar o carrinho pelo navegador do celular.
 
 ## 👥 Integrantes do Grupo
 
 - **Gabriel Machado** — RM 99880
 - **Lourenzo Ramos** — RM 99951
 - **Vitor Hugo Rodrigues** — RM 97758
-- **Victoria Franceschini** — RM 550609
 
 ---
 
@@ -19,12 +18,14 @@ Desenvolver um carrinho robótico capaz de:
 
 - Movimentar-se para frente e para trás;
 - Realizar curvas para esquerda e direita;
-- Receber comandos através de um joystick;
-- Comunicar o controle ESP32 com o Arduino Mega;
-- Detectar obstáculos utilizando um sensor de proximidade;
-- Controlar quatro motores DC através de uma Ponte H;
-- Utilizar LEDs como sinalização visual do robô;
-- Implementar uma estrutura física utilizando um chassi 4WD de acrílico.
+- Parar remotamente;
+- Ser controlado por um celular conectado diretamente ao Wi-Fi criado pelo ESP32;
+- Controlar dois motores DC por meio de uma ponte H L298N;
+- Utilizar um sensor ultrassônico HC-SR04 para medir a distância de obstáculos;
+- Operar de forma independente do computador após a gravação do firmware;
+- Utilizar uma carenagem simples de papelão inspirada em um caminhão da Volkswagen Caminhões e Ônibus.
+
+> A documentação específica da evolução com TinyML será adicionada em uma etapa posterior do projeto.
 
 ---
 
@@ -32,69 +33,128 @@ Desenvolver um carrinho robótico capaz de:
 
 | Componente | Quantidade | Função |
 |---|---:|---|
-| Arduino Mega 2560 | 1 | Controlador principal do carrinho |
-| ESP32 | 1 | Comunicação e controle remoto |
-| Joystick Shield | 1 | Controle da movimentação |
-| Sensor de proximidade | 1 | Detecção de obstáculos |
-| Ponte H | 1 | Controle dos motores DC |
-| Motores DC | 4 | Movimentação do robô |
-| Rodas | 4 | Locomoção |
-| LEDs vermelhos | 2 | Sinalização |
-| Resistores | 2+ | Proteção dos LEDs e circuito |
-| Mini Protoboard | 1 | Organização das conexões |
-| Suporte para pilhas | 1 | Alimentação do sistema |
-| Fios Jumper | Diversos | Conexões elétricas |
-| Chassi 4WD de acrílico | 1 | Estrutura física do robô |
+| ESP32 ESP-WROOM-32 DevKit V1 | 1 | Controlador principal e servidor Wi-Fi |
+| Ponte H L298N | 1 | Acionamento dos dois motores |
+| Motores DC com redução | 2 | Movimentação do carrinho |
+| Rodas | 2 | Tração |
+| Roda boba | 1 | Apoio e giro livre |
+| Chassi 2WD | 1 | Estrutura física |
+| Sensor ultrassônico HC-SR04 | 1 | Medição de distância |
+| Protoboard | 1 | Organização das conexões |
+| Resistores de 1 kΩ e 2 kΩ | 1 de cada | Divisor de tensão do pino ECHO |
+| Fios jumper | Diversos | Conexões elétricas |
+| Suporte para 4 pilhas AA | 1 | Alimentação dos motores |
+| Pilhas AA | 4 | Alimentação da ponte H e motores |
+| Power bank | 1 | Alimentação estável do ESP32 via USB |
+| Papelão | Conforme necessário | Carenagem do caminhão |
 
 ---
 
 ## 🏎️ Chassi
 
-O projeto utiliza um **chassi 4WD de acrílico**, contendo quatro motores independentes e quatro rodas.
+O projeto utiliza um **chassi 2WD**, composto por:
 
-Modelo utilizado:
+- 2 motores DC com redução;
+- 2 rodas motorizadas;
+- 1 roda boba;
+- Base do chassi;
+- Suporte para 4 pilhas AA;
+- Parafusos e elementos de fixação.
 
-**Kit Chassi 4WD com 4 motores e rodas para montagem de robôs**
-
-O kit possui:
-
-- Base dupla em acrílico;
-- 4 motores DC;
-- Caixa de redução;
-- 4 rodas com pneus;
-- Suporte para pilhas;
-- Parafusos e espaçadores para montagem.
-
-🔗 Produto de referência:
-
-https://www.roboticaeducacional.art.br/kit-4wd-chassi-para-montagem-de-robo
+Essa configuração foi escolhida por ser mais simples, leve e adequada ao protótipo, mantendo todos os movimentos necessários para o projeto.
 
 ---
 
 ## 🧠 Arquitetura do Projeto
 
-O sistema será dividido em dois módulos principais:
+O ESP32 concentra o controle do sistema.
 
-### 🎮 Controle Remoto
+### Controle remoto
 
-O controle será responsável por receber os comandos do usuário.
+O próprio ESP32 cria uma rede Wi-Fi chamada **CarrinhoESP32**. O celular se conecta diretamente a essa rede e acessa uma página web hospedada no microcontrolador.
 
-Componentes:
+```text
+Celular
+   ↓
+Wi-Fi criado pelo ESP32
+   ↓
+ESP32
+   ↓
+L298N
+   ↓
+2 motores DC
+```
 
-- ESP32;
-- Joystick Shield.
+A interface web possui comandos de:
 
-O ESP32 interpreta a posição do joystick e envia comandos para o carrinho.
+- Frente;
+- Ré;
+- Esquerda;
+- Direita;
+- Parar.
 
-## Medidas dos componentes:
+Não é necessário roteador ou acesso à internet para controlar o carrinho.
 
-## 📐 Dimensões e Fixação dos Componentes
+### Alimentação
 
-| Componente | Comprimento | Largura | Altura | Forma de Fixação |
-|---|---:|---:|---:|---|
-| Motor esquerdo | ≈ 7,0 cm | ≈ 2,2 cm | ≈ 2,2 cm | Fixado ao chassi de acrílico com suportes plásticos e parafusos |
-| Motor direito | ≈ 7,0 cm | ≈ 2,2 cm | ≈ 2,2 cm | Fixado ao chassi de acrílico com suportes plásticos e parafusos |
-| ESP32 | ≈ 10,1 cm | ≈ 5,4 cm | ≈ 1,5 cm | Fixado ao chassi utilizando fita dupla face |
-| Joystick Shield | ≈ 7,0 cm | ≈ 5,4 cm | ≈ 2,5 cm | Encaixado diretamente sobre os pinos do microcontrolador compatível |
-| Ponte H | ≈ 4,3 cm | ≈ 4,3 cm | ≈ 2,7 cm | Fixada ao chassi com fita dupla face |
-| Sensor de proximidade | ≈ 4,5 cm | ≈ 2,0 cm | ≈ 1,2 cm | Fixado na parte frontal do chassi através de suporte e parafusos |
+Para evitar instabilidade causada pelo consumo dos motores, a alimentação foi separada:
+
+- **Power bank → ESP32 via USB**;
+- **4 pilhas AA → L298N → motores**;
+- **GND do ESP32 e GND do L298N em comum**.
+
+### Sensor ultrassônico
+
+O HC-SR04 utiliza:
+
+| HC-SR04 | ESP32 |
+|---|---|
+| VCC | 5V |
+| GND | GND |
+| TRIG | GPIO 18 |
+| ECHO | GPIO 19 através de divisor de tensão |
+
+O divisor de tensão usa resistores de **1 kΩ e 2 kΩ**, reduzindo o sinal do ECHO antes de chegar ao GPIO 19 do ESP32.
+
+---
+
+## 🔌 Ligações do L298N
+
+| ESP32 | L298N |
+|---|---|
+| GPIO 25 | IN1 |
+| GPIO 26 | IN2 |
+| GPIO 33 | IN3 |
+| GPIO 32 | IN4 |
+| GND | GND |
+
+- OUT1 / OUT2 → motor esquerdo;
+- OUT3 / OUT4 → motor direito;
+- ENA e ENB permanecem habilitados pelos jumpers para o controle básico.
+
+---
+
+## 📁 Estrutura do Repositório
+
+- **cad/** — arquivos CAD mantidos como material de referência da etapa inicial;
+- **hardware/** — documentação da arquitetura e dos componentes realmente utilizados;
+- **organizacao/** — documentação de planejamento adaptada ao projeto executado;
+- **src/** — código utilizado no ESP32.
+
+---
+
+## 💻 Firmware
+
+O firmware principal está em:
+
+**src/carrinho_esp32.ino**
+
+Ele implementa o controle via Wi-Fi e hospeda a interface web acessada pelo celular.
+
+Configuração da rede:
+
+- Rede: **CarrinhoESP32**
+- Senha: **12345678**
+- Endereço padrão: **192.168.4.1**
+
+Após o código ser gravado, o computador não é necessário para a operação do carrinho.
