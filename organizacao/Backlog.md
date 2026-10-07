@@ -33,7 +33,7 @@ O backlog foi atualizado para refletir a versão realmente construída do projet
 | B17 | Realizar testes de movimentação | Alta | Concluído |
 | B18 | Validar alimentação independente do computador | Alta | Concluído |
 | B19 | Atualizar documentação do GitHub para a montagem real | Média | Em andamento |
-| B20 | Documentar a evolução com TinyML | Alta | Próxima etapa |
+| B20 | Documentar e integrar a evolução com TinyML | Alta | Concluído |
 
 ---
 
@@ -65,4 +65,4 @@ O backlog foi atualizado para refletir a versão realmente construída do projet
 12. Construção da carenagem;
 13. Testes integrados;
 14. Atualização da documentação;
-15. Evolução para TinyML na segunda entrega.
+15. Integração, treinamento e documentação do TinyML na segunda entrega.
