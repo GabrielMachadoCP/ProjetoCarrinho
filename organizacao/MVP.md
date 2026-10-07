@@ -1,107 +1,95 @@
-# 🚀 MVP — Carrinho Robô 4WD
+# 🚀 MVP — Carrinho Robô 2WD
 
 ## 1. Objetivo
 
-O objetivo do projeto é desenvolver um carrinho robótico 4WD controlado remotamente, capaz de receber comandos do usuário através de um controle com joystick, transmitir esses comandos sem fio e executar movimentos através de quatro motores DC.
+O MVP consiste em um carrinho robótico 2WD capaz de ser controlado sem fio por um celular, utilizando um ESP32 como controlador principal e uma ponte H L298N para acionar dois motores DC.
 
-O sistema também deverá possuir recursos adicionais, como sensor de proximidade e LEDs traseiros de sinalização.
+A arquitetura final não utiliza Arduino Mega, joystick físico, segundo ESP32 ou ESP-NOW.
 
 ---
 
-# 🟢 MVP — Produto Minimamente Viável
+## 🟢 Produto Minimamente Viável
 
-O projeto será considerado minimamente funcional quando for possível controlar o carrinho remotamente e executar seus movimentos principais de maneira estável.
+O projeto é considerado funcional quando o usuário consegue conectar o celular diretamente à rede criada pelo ESP32 e comandar o carrinho de forma estável.
 
-## Requisitos mínimos
+### Requisitos mínimos atingidos
 
-Para atingir o MVP, o sistema deverá possuir:
+- Chassi 2WD montado;
+- Dois motores DC funcionando;
+- Duas rodas motorizadas e uma roda boba;
+- Ponte H L298N conectada;
+- Alimentação dos motores com 4 pilhas AA;
+- ESP32 ESP-WROOM-32 alimentado via power bank;
+- Rede Wi-Fi criada pelo próprio ESP32;
+- Interface web de controle;
+- Movimento para frente;
+- Movimento para trás;
+- Curva para esquerda;
+- Curva para direita;
+- Parada;
+- Controle pelo iPhone;
+- Sensor HC-SR04 conectado e testado;
+- Funcionamento sem conexão ao computador.
 
-- Chassi 4WD montado;
-- Quatro motores DC funcionando;
-- Ponte H conectada aos motores;
-- Sistema de alimentação funcional;
-- Controle utilizando Arduino Mega 2560 e Joystick Shield;
-- Comunicação entre o controle e o carrinho utilizando ESP32;
-- Comunicação sem fio entre os módulos;
-- Comando para movimentar o carrinho para frente;
-- Comando para virar para a esquerda;
-- Comando para virar para a direita;
-- Comando de parada/freio;
-- Integração entre hardware e software;
-- Testes básicos de movimentação.
+---
 
-## Fluxo esperado do MVP
+## 🔄 Fluxo do MVP
 
 ```text
-Joystick / Botões
-        ↓
-Arduino Mega 2560
-        ↓
-ESP32 Transmissor
-        ↓
-Comunicação ESP-NOW
-        ↓
-ESP32 Receptor no Carrinho
-        ↓
-Ponte H
-        ↓
-4 Motores DC
+iPhone
+  ↓
+Rede Wi-Fi do ESP32
+  ↓
+Página web de controle
+  ↓
+ESP32
+  ↓
+L298N
+  ↓
+2 motores DC
 ```
 
-## Critério de conclusão do MVP
+Sensoriamento:
 
-O MVP será considerado concluído quando um integrante conseguir utilizar o controle para comandar o carrinho a distância e executar, de maneira confiável:
+```text
+HC-SR04
+   ↓
+ESP32
+   ↓
+Leitura de distância
+```
+
+---
+
+## ✅ Critério de Conclusão
+
+O MVP é considerado concluído quando o carrinho responde de forma confiável aos cinco comandos principais:
 
 1. Frente;
-2. Esquerda;
-3. Direita;
-4. Parada/Freio.
+2. Ré;
+3. Esquerda;
+4. Direita;
+5. Parar.
 
-O carrinho deverá responder aos comandos sem necessidade de conexão física com o controle.
-
----
-
-# 🏁 Produto Final
-
-Após o MVP, serão implementadas funcionalidades adicionais para concluir o projeto.
-
-O produto será considerado totalmente concluído quando possuir:
-
-- Controle remoto funcionando de forma estável;
-- Comunicação ESP-NOW confiável;
-- Quatro motores funcionando corretamente;
-- Movimentação para frente;
-- Movimentação para trás;
-- Curvas para esquerda;
-- Curvas para direita;
-- Sistema de parada/freio;
-- LEDs traseiros acionados durante a frenagem;
-- Sensor de proximidade funcionando;
-- Detecção de obstáculos;
-- Parada automática ao detectar um obstáculo;
-- Sistema de segurança em caso de perda da comunicação;
-- Controle adequado da velocidade dos motores;
-- Organização definitiva dos componentes no chassi;
-- Cabeamento organizado e seguro;
-- Estrutura física finalizada;
-- Código organizado e documentado;
-- Testes de integração concluídos;
-- Documentação do projeto atualizada no GitHub.
+Além disso, o sistema deve operar com alimentação própria, sem depender do computador.
 
 ---
 
-# 📊 Etapas do Projeto
+## 🏁 Estado Atual
 
-| Etapa | Resultado esperado |
+A base funcional do projeto foi concluída e validada. O sensor ultrassônico também foi instalado e testado.
+
+A próxima evolução será tratada como uma etapa própria do projeto: **TinyML**, usando os dados do HC-SR04 para classificação embarcada no ESP32.
+
+---
+
+## 📊 Etapas
+
+| Etapa | Resultado |
 |---|---|
-| Protótipo inicial | Componentes eletrônicos funcionando individualmente |
-| Integração | Controle consegue enviar comandos ao carrinho |
-| MVP | Carrinho executa frente, esquerda, direita e parada remotamente |
-| Evolução | Sensor, LEDs, controle de velocidade e segurança adicionados |
-| Produto Final | Sistema completamente integrado, testado e documentado |
-
----
-
-# ✅ Definição de Pronto
-
-O projeto será considerado finalizado quando todas as funcionalidades classificadas como **Must Have** e **Should Have** estiverem implementadas, integradas e testadas, permitindo uma demonstração completa do carrinho.
+| Montagem | Chassi 2WD, motores e roda boba instalados |
+| Eletrônica | ESP32, L298N e alimentação funcionando |
+| Controle | Página web via Wi-Fi funcionando no celular |
+| Sensoriamento | HC-SR04 conectado e validado |
+| MVP | Carrinho movimentando-se remotamente de forma estável |
+| Evolução | TinyML embarcado no ESP32 |
