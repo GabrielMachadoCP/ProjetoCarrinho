@@ -12,9 +12,7 @@ BACKLOG → TO DO → IN PROGRESS → REVIEW / TEST → DONE
 
 | ID | Tarefa | Status |
 |---|---|---|
-| K20 | Documentar etapa TinyML | Próxima entrega |
-| K21 | Organizar dataset e métricas do Edge Impulse | Próxima entrega |
-| K22 | Documentar modelo embarcado no ESP32 | Próxima entrega |
+| — | Nenhuma tarefa pendente desta etapa | — |
 
 ---
 
@@ -22,7 +20,7 @@ BACKLOG → TO DO → IN PROGRESS → REVIEW / TEST → DONE
 
 | ID | Tarefa | Status |
 |---|---|---|
-| K19 | Revisão final da documentação atual | Em andamento |
+| — | Nenhuma tarefa pendente nesta etapa | — |
 
 ---
 
@@ -30,7 +28,7 @@ BACKLOG → TO DO → IN PROGRESS → REVIEW / TEST → DONE
 
 | ID | Tarefa | Status |
 |---|---|---|
-| K18 | Atualização dos arquivos do repositório para a arquitetura real | Em andamento |
+| — | Nenhuma tarefa pendente nesta etapa | — |
 
 ---
 
@@ -63,6 +61,11 @@ BACKLOG → TO DO → IN PROGRESS → REVIEW / TEST → DONE
 | K15 | Testes dos dois motores |
 | K16 | Organização básica do cabeamento |
 | K17 | Construção da carenagem do caminhão |
+| K18 | Atualização da documentação para a arquitetura real |
+| K19 | Revisão final da documentação da primeira etapa |
+| K20 | Documentação da etapa TinyML |
+| K21 | Organização do dataset e métricas do Edge Impulse |
+| K22 | Modelo TinyML embarcado no ESP32 e modo autônomo |
 
 ---
 
@@ -84,4 +87,4 @@ A primeira etapa foi concluída com:
 
 ## 🧠 Segunda Etapa — TinyML
 
-A evolução com TinyML será documentada separadamente e incluirá coleta de dados, pré-processamento, treinamento no Edge Impulse, avaliação do classificador, deployment e execução do modelo no ESP32.
+A segunda etapa foi concluída e está documentada em [TinyML/README.md](../TinyML/README.md). Ela incluiu coleta e pré-processamento dos dados, treinamento no Edge Impulse, análise da matriz de confusão, coleta adicional para melhorar o classificador, deployment quantizado e execução do modelo no ESP32 com um novo **Modo Autônomo TinyML**.
