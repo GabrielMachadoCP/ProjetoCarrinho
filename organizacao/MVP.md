@@ -79,7 +79,7 @@ Além disso, o sistema deve operar com alimentação própria, sem depender do c
 
 A base funcional do projeto foi concluída e validada. O sensor ultrassônico também foi instalado e testado.
 
-A próxima evolução será tratada como uma etapa própria do projeto: **TinyML**, usando os dados do HC-SR04 para classificação embarcada no ESP32.
+A evolução com **TinyML foi concluída**: os dados do HC-SR04 foram pré-processados, utilizados para treinamento no Edge Impulse e o modelo foi integrado ao ESP32 para o modo autônomo.
 
 ---
 
@@ -92,4 +92,4 @@ A próxima evolução será tratada como uma etapa própria do projeto: **TinyML
 | Controle | Página web via Wi-Fi funcionando no celular |
 | Sensoriamento | HC-SR04 conectado e validado |
 | MVP | Carrinho movimentando-se remotamente de forma estável |
-| Evolução | TinyML embarcado no ESP32 |
+| Evolução TinyML | Modelo Edge Impulse embarcado no ESP32 com modo autônomo |
