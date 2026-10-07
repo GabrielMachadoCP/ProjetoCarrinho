@@ -1,107 +1,91 @@
-# 📊 Priorização MoSCoW — Carrinho Robô 4WD
+# 📊 Priorização MoSCoW — Carrinho Robô 2WD
 
-A técnica MoSCoW foi utilizada para definir a prioridade das funcionalidades do projeto.
-
-As funcionalidades foram divididas em:
-
-- **Must Have:** obrigatórias para funcionamento do projeto;
-- **Should Have:** importantes, mas não essenciais para o primeiro protótipo;
-- **Could Have:** melhorias desejáveis;
-- **Won't Have:** funcionalidades que não fazem parte do escopo atual.
+A técnica MoSCoW foi atualizada para refletir a versão realmente desenvolvida do projeto.
 
 ---
 
-# 🔴 Must Have
-
-Funcionalidades essenciais para que o projeto possa ser considerado funcional.
+## 🔴 Must Have
 
 | Funcionalidade | Justificativa |
 |---|---|
-| Chassi 4WD | Estrutura principal do carrinho |
-| Quatro motores DC | Responsáveis pela movimentação |
-| Ponte H | Permite controlar os motores |
-| Sistema de alimentação | Necessário para funcionamento do circuito |
-| Leitura do joystick/botões | Permite receber os comandos do usuário |
-| Comunicação Arduino Mega → ESP32 | Permite transmitir os comandos do controle |
-| Comunicação sem fio | Permite controlar o carrinho remotamente |
-| ESP32 receptor no carrinho | Recebe os comandos enviados pelo controle |
-| Movimento para frente | Movimento básico do carrinho |
+| Chassi 2WD | Estrutura principal do carrinho |
+| Dois motores DC | Responsáveis pela movimentação |
+| Duas rodas + roda boba | Configuração mecânica usada |
+| Ponte H L298N | Controle elétrico dos motores |
+| ESP32 ESP-WROOM-32 | Controlador principal do sistema |
+| Alimentação dos motores | Necessária para o movimento |
+| Power bank para o ESP32 | Permite funcionamento independente |
+| Movimento para frente | Função básica |
+| Movimento para trás | Necessário para manobras |
 | Curva para esquerda | Controle de direção |
 | Curva para direita | Controle de direção |
-| Parada/Freio | Segurança e controle do carrinho |
+| Parada | Segurança e controle |
+| Wi-Fi criado pelo ESP32 | Meio de comunicação com o usuário |
+| Interface web | Permite controlar o carrinho pelo celular |
 | Integração hardware + software | Necessária para o funcionamento completo |
 
 ---
 
-# 🟠 Should Have
-
-Funcionalidades importantes que aumentam a segurança e qualidade do produto.
+## 🟠 Should Have
 
 | Funcionalidade | Justificativa |
 |---|---|
-| Movimento para trás | Aumenta a capacidade de manobra |
-| Sensor HC-SR04/proximidade | Permite detectar obstáculos |
-| Parada automática | Evita colisões |
-| LEDs traseiros de freio | Sinalização visual durante a frenagem |
-| Failsafe de comunicação | Para o carrinho caso o sinal seja perdido |
-| Controle de velocidade utilizando PWM | Melhora a dirigibilidade |
-| Organização do cabeamento | Aumenta a segurança e confiabilidade |
-| Testes de integração | Garante que os módulos funcionam juntos |
-| Documentação técnica | Facilita manutenção e apresentação |
+| HC-SR04 | Medição da distância até obstáculos |
+| Divisor de tensão no ECHO | Proteção da entrada do ESP32 |
+| Organização do cabeamento | Melhora confiabilidade e montagem |
+| Carenagem | Melhora acabamento e identidade visual |
+| Testes de integração | Valida o funcionamento conjunto |
+| Documentação técnica | Registra a solução realmente construída |
 
 ---
 
-# 🟡 Could Have
-
-Funcionalidades interessantes caso exista tempo disponível após a conclusão das funções principais.
+## 🟡 Could Have
 
 | Funcionalidade | Benefício |
 |---|---|
-| Controle proporcional de velocidade pelo joystick | Movimento mais suave |
-| Diferentes níveis de velocidade | Melhor experiência de controle |
-| Buzina com buzzer | Feedback sonoro |
-| LEDs dianteiros | Simulação de faróis |
-| Indicador de conexão | Mostra se controle e carrinho estão conectados |
+| Controle de velocidade por PWM | Movimento mais suave |
 | Indicador de bateria | Facilita monitoramento |
-| Carenagem personalizada | Melhora aparência e proteção |
-| Peças adicionais impressas em 3D | Melhora organização dos componentes |
-| Telemetria do sensor | Permite visualizar distância de obstáculos |
+| Buzzer | Feedback sonoro |
+| Faróis ou LEDs | Sinalização visual |
+| Telemetria de distância na página web | Exibe dados do HC-SR04 ao usuário |
+| Melhor acabamento da carenagem | Evolução estética do protótipo |
 
 ---
 
-# ⚪ Won't Have — Nesta Versão
+## 🔵 Próxima Entrega — TinyML
 
-Funcionalidades que estão fora do escopo atual do projeto.
+A parte de TinyML não é detalhada neste documento porque será registrada como a segunda entrega do projeto. Essa evolução utiliza o HC-SR04, pré-processamento dos dados, treinamento no Edge Impulse e execução do modelo no ESP32.
+
+---
+
+## ⚪ Fora do Escopo Atual
 
 | Funcionalidade | Motivo |
 |---|---|
-| Direção autônoma completa | Complexidade acima do escopo |
-| GPS | Não necessário para o objetivo atual |
-| Câmera com transmissão de vídeo | Não necessária para o MVP |
-| Inteligência Artificial | Fora do escopo principal |
-| Reconhecimento de objetos | Exigiria hardware e software adicionais |
-| Aplicativo mobile | Controle físico já atende ao projeto |
-| Mapeamento de ambiente | Complexidade acima do necessário |
-| Navegação autônoma | Poderá ser considerada em versões futuras |
+| GPS | Não necessário para o objetivo do protótipo |
+| Câmera com transmissão de vídeo | Não necessária nesta versão |
+| Mapeamento completo do ambiente | Complexidade acima do escopo |
+| Reconhecimento visual de objetos | Exigiria câmera e processamento adicional |
+| Aplicativo mobile nativo | A interface web já atende ao controle remoto |
 
 ---
 
-# 🎯 Ordem de Prioridade
+## 🎯 Ordem de Prioridade
 
 ```text
-1. Movimentação
+1. Estrutura 2WD
         ↓
-2. Controle
+2. Motores + L298N
         ↓
-3. Comunicação sem fio
+3. ESP32
         ↓
-4. Integração
+4. Controle Wi-Fi
         ↓
-5. Segurança
+5. Integração e testes
         ↓
-6. Sensores e LEDs
+6. HC-SR04
         ↓
-7. Melhorias opcionais
+7. Documentação
+        ↓
+8. Evolução TinyML
 ```
-
-O desenvolvimento deverá priorizar primeiro todas as funcionalidades **Must Have**, seguido pelas **Should Have**.
