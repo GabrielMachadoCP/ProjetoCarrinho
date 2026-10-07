@@ -1,48 +1,135 @@
-## 🧠 Arquitetura do Projeto
+# 🧠 Arquitetura do Projeto
 
-O sistema será dividido em dois módulos principais:
+A versão executada do projeto utiliza **um único ESP32 ESP-WROOM-32** como controlador principal. O Arduino Mega, o joystick físico, um segundo ESP32 e a comunicação ESP-NOW, considerados na concepção inicial, **não fazem parte da montagem final desta etapa**.
 
-### 🎮 Controle Remoto
+## 📡 Fluxo de Controle
 
-O controle será responsável por receber os comandos do usuário.
+O ESP32 cria uma rede Wi-Fi própria e hospeda uma página web de controle.
 
-Componentes:
+```text
+iPhone / navegador
+        ↓
+Wi-Fi "CarrinhoESP32"
+        ↓
+ESP32 ESP-WROOM-32
+        ↓
+Ponte H L298N
+        ↓
+2 motores DC
+```
 
-- ESP32;
-- Joystick Shield.
+O usuário acessa o endereço **192.168.4.1** no navegador e utiliza os botões da interface para executar os comandos:
 
-O ESP32 interpreta a posição do joystick e envia comandos para o carrinho.
+- Frente;
+- Ré;
+- Esquerda;
+- Direita;
+- Parar.
 
-## Medidas dos componentes:
+A comunicação ocorre diretamente entre o celular e o ESP32, sem necessidade de roteador ou acesso à internet.
 
-## 📐 Dimensões e Fixação dos Componentes
+---
 
-| Componente | Comprimento | Largura | Altura | Forma de Fixação |
-|---|---:|---:|---:|---|
-| Motor esquerdo | ≈ 7,0 cm | ≈ 2,2 cm | ≈ 2,2 cm | Fixado ao chassi de acrílico com suportes plásticos e parafusos |
-| Motor direito | ≈ 7,0 cm | ≈ 2,2 cm | ≈ 2,2 cm | Fixado ao chassi de acrílico com suportes plásticos e parafusos |
-| ESP32 | ≈ 10,1 cm | ≈ 5,4 cm | ≈ 1,5 cm | Fixado ao chassi utilizando fita dupla face |
-| Joystick Shield | ≈ 7,0 cm | ≈ 5,4 cm | ≈ 2,5 cm | Encaixado diretamente sobre os pinos do microcontrolador compatível |
-| Ponte H | ≈ 4,3 cm | ≈ 4,3 cm | ≈ 2,7 cm | Fixada ao chassi com fita dupla face |
-| Sensor de proximidade | ≈ 4,5 cm | ≈ 2,0 cm | ≈ 1,2 cm | Fixado na parte frontal do chassi através de suporte e parafusos |
+## 🏎️ Estrutura Mecânica
 
-## 🏎️ Chassi
+O projeto utiliza um **chassi 2WD**, composto por:
 
-O projeto utiliza um **chassi 4WD de acrílico**, contendo quatro motores independentes e quatro rodas.
+- 2 motores DC com redução;
+- 2 rodas motorizadas;
+- 1 roda boba para apoio e giro;
+- Base do chassi;
+- Suporte para 4 pilhas AA.
 
-Modelo utilizado:
+A configuração 2WD substituiu a proposta inicial de um chassi 4WD. Ela atende aos movimentos necessários com menor peso e menor complexidade.
 
-**Kit Chassi 4WD com 4 motores e rodas para montagem de robôs**
+A carenagem do protótipo foi construída em papelão com aparência inspirada em um caminhão da Volkswagen Caminhões e Ônibus.
 
-O kit possui:
+---
 
-- Base dupla em acrílico;
-- 4 motores DC;
-- Caixa de redução;
-- 4 rodas com pneus;
-- Suporte para pilhas;
-- Parafusos e espaçadores para montagem.
+## ⚙️ Controle dos Motores
 
-🔗 Produto de referência:
+A ponte H utilizada é a **L298N**.
 
-https://www.roboticaeducacional.art.br/kit-4wd-chassi-para-montagem-de-robo
+| Função | ESP32 | L298N |
+|---|---|---|
+| Motor esquerdo A | GPIO 25 | IN1 |
+| Motor esquerdo B | GPIO 26 | IN2 |
+| Motor direito A | GPIO 33 | IN3 |
+| Motor direito B | GPIO 32 | IN4 |
+| Referência elétrica | GND | GND |
+
+Os jumpers **ENA** e **ENB** permanecem instalados na configuração básica utilizada, mantendo os canais habilitados.
+
+### Sentido utilizado no firmware
+
+- Frente: os dois motores avançam;
+- Ré: os dois motores invertem;
+- Esquerda: motores giram em sentidos opostos para realizar a curva;
+- Direita: motores giram em sentidos opostos para realizar a curva;
+- Parar: todas as entradas da ponte H ficam em nível baixo.
+
+---
+
+## 📏 Sensor Ultrassônico HC-SR04
+
+O sensor HC-SR04 foi instalado na parte frontal do carrinho para medir a distância até obstáculos.
+
+| HC-SR04 | Ligação |
+|---|---|
+| VCC | 5V do ESP32 |
+| GND | GND |
+| TRIG | GPIO 18 |
+| ECHO | GPIO 19 por divisor de tensão |
+
+Como o sinal ECHO do HC-SR04 pode chegar a aproximadamente 5 V, foi utilizado um divisor resistivo antes do GPIO 19:
+
+```text
+ECHO do HC-SR04
+      ↓
+     1 kΩ
+      ↓
+      +────────→ GPIO 19
+      ↓
+     2 kΩ
+      ↓
+     GND
+```
+
+---
+
+## 🔋 Alimentação
+
+A alimentação foi separada para melhorar a estabilidade do sistema:
+
+```text
+Power bank
+   ↓ USB
+ ESP32
+
+4 pilhas AA
+    ↓
+  L298N
+    ↓
+2 motores DC
+```
+
+O **GND do ESP32 e o GND do L298N são interligados**, garantindo uma referência elétrica comum.
+
+Essa configuração evita alimentar os motores diretamente pelo ESP32 e reduz problemas causados por quedas de tensão durante a partida dos motores.
+
+---
+
+## 📐 Fixação dos Componentes
+
+| Componente | Posição / Fixação |
+|---|---|
+| ESP32 | Sobre a base do chassi, fixado de forma a permitir acesso à porta USB |
+| L298N | Sobre a base do chassi, próximo aos motores |
+| HC-SR04 | Parte frontal do carrinho |
+| Suporte 4xAA | Base do chassi |
+| Power bank | Posicionado sobre o chassi/carenagem conforme distribuição de peso |
+| Motores DC | Laterais do chassi 2WD |
+| Roda boba | Ponto de apoio livre do chassi |
+| Carenagem | Estrutura em papelão sobre a base |
+
+> A evolução com TinyML será documentada separadamente na segunda etapa do projeto.
