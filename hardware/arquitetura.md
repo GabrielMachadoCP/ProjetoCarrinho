@@ -132,4 +132,4 @@ Essa configuração evita alimentar os motores diretamente pelo ESP32 e reduz pr
 | Roda boba | Ponto de apoio livre do chassi |
 | Carenagem | Estrutura em papelão sobre a base |
 
-> A evolução com TinyML será documentada separadamente na segunda etapa do projeto.
+> A evolução com **TinyML foi implementada** e está documentada em [TinyML/README.md](../TinyML/README.md).
