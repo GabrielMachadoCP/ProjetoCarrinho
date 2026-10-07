@@ -238,7 +238,7 @@ Durante a coleta, o objeto foi colocado em diferentes distâncias dentro de cada
 
 O arquivo utilizado está disponível em:
 
-➡️ [dados_carrinho.csv](./dados/dados_carrinho.csv)
+dados_carrinho.csv
 
 ---
 
@@ -248,7 +248,7 @@ Foi criado um projeto no **Edge Impulse Studio** para treinar o classificador.
 
 Na primeira tentativa, o upload direto do CSV falhou porque o Edge Impulse tentou interpretar o arquivo sem uma configuração adequada para as várias linhas de amostras.
 
-![Tentativa inicial de importação do CSV](./evidencias/01-importacao-csv.png)
+<img width="3170" height="1227" alt="Captura de tela 2026-10-04 180820" src="https://github.com/user-attachments/assets/76d997cc-9bfa-4ad5-b571-266cbd385361" />
 
 Para resolver, foi utilizado o **CSV Wizard**.
 
@@ -267,7 +267,7 @@ Depois dessa configuração, as linhas do CSV passaram a ser reconhecidas como a
 
 Em **Impulse Design → Create Impulse**, foi criada a estrutura do modelo.
 
-![Tela de criação do Impulse](./evidencias/02-create-impulse.png)
+<img width="3839" height="1844" alt="Captura de tela 2026-10-04 181437" src="https://github.com/user-attachments/assets/6af7828f-a130-4465-8982-ccd326b652db" />
 
 A configuração utilizada foi:
 
@@ -313,7 +313,7 @@ O primeiro treinamento atingiu:
 - **Weighted F1 Score: 0,60**
 - **Area under ROC Curve: 0,98**
 
-![Primeiro treinamento - 71% de accuracy](./evidencias/04-treinamento-inicial-71.png)
+<img width="1544" height="1805" alt="Captura de tela 2026-10-04 182420" src="https://github.com/user-attachments/assets/c5e0ee50-cf74-4ca8-8a9d-c1ff188b8bfb" />
 
 A matriz de confusão mostrou claramente o principal problema:
 
@@ -360,7 +360,7 @@ O segundo treinamento apresentou uma melhora significativa:
 - **Weighted F1 Score: 0,84**
 - **Area under ROC Curve: 1,00**
 
-![Treinamento final - 85,3% de accuracy](./evidencias/05-treinamento-final-85-3.png)
+<img width="1541" height="1834" alt="Captura de tela 2026-10-04 183407" src="https://github.com/user-attachments/assets/07100f41-253b-41ef-9806-24aa7550c2ab" />
 
 A nova matriz de confusão ficou:
 
@@ -386,11 +386,7 @@ A classe intermediária ainda é a mais difícil do problema, mas deixou de ter 
 
 Com o modelo treinado, foi utilizada a etapa **Deployment** do Edge Impulse.
 
-Foi selecionada a opção de modelo **Quantized (int8)**:
-
-![Modelo Quantized int8](./evidencias/03-deployment-int8.png)
-
-Em seguida foi escolhida a opção:
+Foi selecionada a opção de modelo **Quantized (int8)** e em seguida foi escolhida a opção:
 
 ```text
 Arduino Library
@@ -402,7 +398,7 @@ O Edge Impulse gerou a biblioteca do projeto em formato ZIP.
 
 Arquivo utilizado:
 
-➡️ [Biblioteca Arduino gerada pelo Edge Impulse](./modelo/ei-gabrielmacapi-project-1-arduino-1.0.1-impulse-1.zip)
+ei-gabrielmacapi-project-1-arduino-1.0.1-impulse-#1.zip
 
 ---
 
@@ -556,29 +552,7 @@ Também foi mantida uma camada de segurança no firmware: se a distância medida
 
 ---
 
-# 16. Evidências
-
-| Evidência | Descrição |
-|---|---|
-| [01-importacao-csv.png](./evidencias/01-importacao-csv.png) | Primeira tentativa de upload do CSV e necessidade de configurar o CSV Wizard |
-| [02-create-impulse.png](./evidencias/02-create-impulse.png) | Tela de criação do Impulse antes de adicionar Raw Data e Classification |
-| [03-deployment-int8.png](./evidencias/03-deployment-int8.png) | Modelo selecionado em Quantized (int8) para deployment |
-| [04-treinamento-inicial-71.png](./evidencias/04-treinamento-inicial-71.png) | Primeiro treinamento: 71,0% de accuracy e falha na classe 1 |
-| [05-treinamento-final-85-3.png](./evidencias/05-treinamento-final-85-3.png) | Treinamento após nova coleta: 85,3% de accuracy e melhora da classe 1 |
-
----
-
-# 17. Arquivos da entrega
-
-| Arquivo | Finalidade |
-|---|---|
-| [dados_carrinho.csv](./dados/dados_carrinho.csv) | Dataset utilizado para treinamento |
-| [Biblioteca Arduino do Edge Impulse](./modelo/ei-gabrielmacapi-project-1-arduino-1.0.1-impulse-1.zip) | Modelo exportado para execução no ESP32 |
-| [Firmware final](../src/carrinho_esp32.ino) | Integração do controle Wi-Fi, motores, HC-SR04 e TinyML |
-
----
-
-# 18. Conclusão
+# 16. Conclusão
 
 A segunda etapa evoluiu o protótipo de um carrinho apenas controlado remotamente para um sistema capaz de realizar **inferência local no ESP32**.
 
