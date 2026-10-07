@@ -52,9 +52,9 @@ A técnica MoSCoW foi atualizada para refletir a versão realmente desenvolvida 
 
 ---
 
-## 🔵 Próxima Entrega — TinyML
+## 🔵 Segunda Entrega — TinyML
 
-A parte de TinyML não é detalhada neste documento porque será registrada como a segunda entrega do projeto. Essa evolução utiliza o HC-SR04, pré-processamento dos dados, treinamento no Edge Impulse e execução do modelo no ESP32.
+A segunda entrega de **TinyML foi implementada** utilizando o HC-SR04, pré-processamento dos dados, treinamento no Edge Impulse e execução do modelo no ESP32. O passo a passo completo e as evidências estão em [TinyML/README.md](../TinyML/README.md).
 
 ---
 
@@ -87,5 +87,5 @@ A parte de TinyML não é detalhada neste documento porque será registrada como
         ↓
 7. Documentação
         ↓
-8. Evolução TinyML
+8. TinyML integrado e validado
 ```
