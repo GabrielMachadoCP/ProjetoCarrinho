@@ -1,147 +1,68 @@
-# 📋 Product Backlog — Carrinho Robô 4WD
+# 📋 Product Backlog — Carrinho Robô 2WD
 
 ## 👥 Integrantes
 
 - **Gabriel Machado**
 - **Lourenzo Ramos**
 - **Vitor Hugo Rodrigues**
-- **Victoria Franceschini**
 
-A divisão das atividades foi feita procurando equilibrar software, eletrônica, mecânica, integração e documentação entre os integrantes.
-
----
-
-# 👨‍💻 Gabriel Machado
-
-Responsável principalmente pelo software do carrinho, ESP32 receptor e integração dos comandos.
-
-| ID | Tarefa | Prioridade |
-|---|---|---|
-| B01 | Definir protocolo de comandos do carrinho | Alta |
-| B02 | Programar ESP32 receptor | Alta |
-| B03 | Implementar recebimento de comandos via ESP-NOW | Alta |
-| B04 | Criar funções de movimentação do carrinho | Alta |
-| B05 | Implementar lógica de failsafe para perda de comunicação | Média |
-
-### Entregas
-
-- Código do ESP32 receptor;
-- Interpretação dos comandos;
-- Funções frente, trás, esquerda, direita e parar;
-- Comunicação integrada ao sistema;
-- Sistema de segurança em perda de sinal.
+O backlog foi atualizado para refletir a versão realmente construída do projeto: chassi 2WD, um único ESP32, controle por Wi-Fi, ponte H L298N e sensor HC-SR04.
 
 ---
 
-# 🔧 Lourenzo Ramos
+## 🎯 Backlog do Projeto
 
-Responsável principalmente pela montagem física, motores, Ponte H e alimentação.
-
-| ID | Tarefa | Prioridade |
-|---|---|---|
-| B06 | Montar o chassi 4WD | Alta |
-| B07 | Instalar os quatro motores DC | Alta |
-| B08 | Conectar motores à Ponte H | Alta |
-| B09 | Implementar sistema de alimentação | Alta |
-| B10 | Organizar e revisar o cabeamento | Média |
-
-### Entregas
-
-- Chassi montado;
-- Motores instalados;
-- Ponte H funcionando;
-- Alimentação segura;
-- Cabeamento organizado.
-
----
-
-# 🎮 Vitor Hugo Rodrigues
-
-Responsável pelo controle remoto, leitura do joystick e transmissão dos comandos.
-
-| ID | Tarefa | Prioridade |
-|---|---|---|
-| B11 | Configurar Arduino Mega e Joystick Shield | Alta |
-| B12 | Programar leitura do joystick e botões | Alta |
-| B13 | Implementar comunicação Arduino Mega → ESP32 | Alta |
-| B14 | Programar ESP32 transmissor utilizando ESP-NOW | Alta |
-| B15 | Integrar e testar sensor de proximidade | Média |
-
-### Entregas
-
-- Controle físico funcionando;
-- Leitura correta dos comandos;
-- Transmissão dos comandos para o carrinho;
-- Comunicação sem fio;
-- Sensor de proximidade integrado.
+| ID | Tarefa | Prioridade | Status |
+|---|---|---|---|
+| B01 | Montar o chassi 2WD | Alta | Concluído |
+| B02 | Instalar os dois motores DC | Alta | Concluído |
+| B03 | Instalar a roda boba | Alta | Concluído |
+| B04 | Conectar os motores à ponte H L298N | Alta | Concluído |
+| B05 | Definir a alimentação dos motores com 4 pilhas AA | Alta | Concluído |
+| B06 | Alimentar o ESP32 via power bank | Alta | Concluído |
+| B07 | Configurar o ESP32 ESP-WROOM-32 | Alta | Concluído |
+| B08 | Implementar os comandos frente, ré, esquerda, direita e parar | Alta | Concluído |
+| B09 | Criar rede Wi-Fi própria no ESP32 | Alta | Concluído |
+| B10 | Criar interface web de controle | Alta | Concluído |
+| B11 | Testar controle pelo navegador do iPhone | Alta | Concluído |
+| B12 | Instalar o HC-SR04 na parte frontal | Alta | Concluído |
+| B13 | Montar divisor de tensão no pino ECHO | Alta | Concluído |
+| B14 | Testar leitura de distância do HC-SR04 | Alta | Concluído |
+| B15 | Integrar e organizar o cabeamento | Média | Concluído |
+| B16 | Construir a carenagem de papelão | Média | Concluído |
+| B17 | Realizar testes de movimentação | Alta | Concluído |
+| B18 | Validar alimentação independente do computador | Alta | Concluído |
+| B19 | Atualizar documentação do GitHub para a montagem real | Média | Em andamento |
+| B20 | Documentar a evolução com TinyML | Alta | Próxima etapa |
 
 ---
 
-# 🎨 Victoria Franceschini
+## 🧩 Organização por Área
 
-Responsável pelo layout físico, LEDs, estrutura e documentação.
-
-| ID | Tarefa | Prioridade |
-|---|---|---|
-| B16 | Definir posicionamento dos componentes no chassi | Alta |
-| B17 | Desenvolver suportes/carenagem em CAD, caso necessário | Média |
-| B18 | Instalar e programar LEDs traseiros de freio | Média |
-| B19 | Atualizar documentação e diagramas do projeto | Média |
-| B20 | Organizar apresentação e demonstração final | Média |
-
-### Entregas
-
-- Layout dos componentes;
-- Modelagem CAD;
-- Sistema de LEDs;
-- Documentação;
-- Material de apresentação.
-
----
-
-# 🤝 Tarefas do Grupo
-
-Algumas atividades deverão ser realizadas em conjunto pelos quatro integrantes.
-
-| ID | Tarefa | Responsáveis |
-|---|---|---|
-| B21 | Teste completo do MVP | Todos |
-| B22 | Teste de alcance da comunicação | Todos |
-| B23 | Teste de obstáculos | Todos |
-| B24 | Correção de bugs encontrados na integração | Todos |
-| B25 | Validação do produto final | Todos |
-
----
-
-# 📊 Distribuição
-
-| Integrante | Área principal |
+| Área | Principais atividades |
 |---|---|
-| Gabriel Machado | Software / ESP32 receptor / Integração |
-| Lourenzo Ramos | Hardware / Motores / Alimentação |
-| Vitor Hugo Rodrigues | Controle / Joystick / Comunicação |
-| Victoria Franceschini | CAD / LEDs / Documentação |
+| Software | Firmware do ESP32, servidor Wi-Fi, interface web e comandos dos motores |
+| Hardware | Chassi 2WD, L298N, motores, alimentação, HC-SR04 e cabeamento |
+| Estrutura | Fixação dos componentes e carenagem do caminhão |
+| Testes | Validação de direção, alcance do controle, sensor e alimentação |
+| Documentação | README, arquitetura, componentes e organização do projeto |
 
 ---
 
-# 🎯 Prioridade de Desenvolvimento
+## 🔄 Sequência Real de Desenvolvimento
 
-O desenvolvimento deverá seguir aproximadamente esta sequência:
-
-1. Montagem do chassi;
-2. Instalação dos motores;
-3. Ponte H;
-4. Alimentação;
-5. Controle com joystick;
-6. Comunicação Mega → ESP32;
-7. ESP-NOW;
-8. ESP32 receptor;
-9. Movimentação;
-10. Integração;
-11. Teste do MVP;
-12. Sensor de proximidade;
-13. LEDs;
-14. Failsafe;
-15. Melhorias;
-16. Testes finais;
-17. Documentação e apresentação.
+1. Montagem do chassi 2WD;
+2. Instalação dos motores e roda boba;
+3. Ligação da ponte H;
+4. Testes individuais dos motores;
+5. Configuração do ESP32;
+6. Implementação dos comandos de movimento;
+7. Criação do controle via Wi-Fi;
+8. Teste pelo iPhone;
+9. Instalação do HC-SR04;
+10. Teste do sensor;
+11. Organização da alimentação;
+12. Construção da carenagem;
+13. Testes integrados;
+14. Atualização da documentação;
+15. Evolução para TinyML na segunda entrega.
