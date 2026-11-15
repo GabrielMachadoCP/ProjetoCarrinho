@@ -110,7 +110,7 @@ O pipeline de treinamento gera o cabeçalho C++ consumido diretamente pelo firmw
 
 Antes da apresentação, o grupo deve coletar amostras físicas nas três classes, retreinar o modelo e registrar a nova matriz de confusão. O procedimento está em [tinyml/README.md](tinyml/README.md).
 
-Além da IA, limites determinísticos funcionam como camada de segurança: falha de sensor ou água crítica sempre interrompem o avanço, mesmo que o modelo indique outra classe.
+O TinyML classifica o contexto e apresenta as probabilidades na Central. Para manter a evolução do carrinho simples e previsível, a atuação usa condições físicas objetivas: caminho livre faz o robô avançar, obstáculo provoca desvio, água provoca parada e falha de sensor provoca parada segura. Assim, uma oscilação isolada da classe `ATENÇÃO` não bloqueia a patrulha.
 
 ## Comportamento autônomo
 
@@ -121,7 +121,7 @@ Além da IA, limites determinísticos funcionam como camada de segurança: falha
 | Alerta não reconhecido | permanece parado |
 | Alerta reconhecido, mas sensor molhado | permanece parado |
 | Alerta reconhecido e sensor seco | encerra ocorrência e retoma a patrulha |
-| ATENÇÃO sem contato de água | para para inspeção |
+| ATENÇÃO da IA, mas caminho seco e livre | continua a patrulha e informa a classe na Central |
 | CRÍTICO por obstáculo | executa manobra de afastamento |
 | Obstáculo próximo | executa desvio |
 | Falha de sensor | para em modo seguro |

@@ -74,5 +74,6 @@ O coletor converte as variáveis em CSV rotulado. A classificação real é info
 - GPIO 34 pertence ao ADC1 e não conflita com o Wi-Fi.
 - Inferência local mantém o funcionamento sem internet.
 - O cabeçalho gerado evita dependências externas no ESP32.
+- A IA classifica e informa o risco à Central; água, distância e falhas acionam as respostas físicas de forma previsível.
 - A camada de segurança tem prioridade sobre a rede neural.
 - A calibração persistente absorve variações entre unidades do sensor.

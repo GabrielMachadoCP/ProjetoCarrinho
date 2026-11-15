@@ -38,7 +38,7 @@ Mostre a leitura do ADC mudando na Central ao tocar uma esponja úmida.
 
 **Fala sugerida:**
 
-“O ESP32 filtra e normaliza as leituras. A rede TinyML usa nível de água, velocidade de subida e risco de obstáculo para estimar três classes: normal, atenção e crítico. A inferência roda no próprio microcontrolador. Regras de segurança têm prioridade em falha ou nível extremo.”
+“O ESP32 filtra e normaliza as leituras. A rede TinyML usa nível de água, velocidade de subida e risco de obstáculo para estimar três classes: normal, atenção e crítico, exibidas na Central. A patrulha usa condições físicas objetivas para avançar, desviar ou parar, evitando que uma oscilação isolada da IA bloqueie o carrinho.”
 
 Substitua qualquer métrica mencionada pela obtida no dataset **real**. Não apresente o baseline sintético como validação física.
 

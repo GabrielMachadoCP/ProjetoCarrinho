@@ -14,6 +14,8 @@ REQUIRED_TOKENS = {
     "presença de água na API": 'water_present',
     "objeto de alerta na API": 'json += "\\\"alert\\\":{"',
     "parada autônoma": 'currentAction = waterPresent',
+    "avanço em caminho livre": "moveForward();",
+    "desvio por distância": "distanceCm <= OBSTACLE_AVOID_DISTANCE_CM",
     "limiar de detecção": "WATER_DETECTION_THRESHOLD = 0.30f",
     "histerese de saída": "WATER_CLEAR_THRESHOLD = 0.15f",
 }

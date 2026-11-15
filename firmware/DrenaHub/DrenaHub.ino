@@ -102,6 +102,7 @@ constexpr unsigned long SENSOR_INTERVAL_MS = 200;
 constexpr unsigned long MANEUVER_COOLDOWN_MS = 4500;
 constexpr float WATER_DETECTION_THRESHOLD = 0.30f;
 constexpr float WATER_CLEAR_THRESHOLD = 0.15f;
+constexpr float OBSTACLE_AVOID_DISTANCE_CM = 25.0f;
 
 // ----------------------------------------------------------------------
 // PAGINA WEB EMBARCADA
@@ -456,7 +457,8 @@ void updateSensorsAndInference() {
 // DECISAO AUTONOMA
 // ----------------------------------------------------------------------
 void executeEscapeManeuver(const String& reason) {
-  if (millis() - lastAutonomousManeuver < MANEUVER_COOLDOWN_MS) {
+  if (lastAutonomousManeuver != 0 &&
+      millis() - lastAutonomousManeuver < MANEUVER_COOLDOWN_MS) {
     stopMotors();
     return;
   }
@@ -494,30 +496,20 @@ void runAutonomousMode() {
     return;
   }
 
-  switch (currentRisk) {
-    case RISK_NORMAL:
-      if (distanceCm > 25.0f) {
-        moveForward();
-      } else {
-        executeEscapeManeuver("Obstaculo detectado; desvio executado");
-      }
-      break;
-
-    case RISK_ATTENTION:
-      stopMotors();
-      currentAction = "INSPECAO NECESSARIA";
-      break;
-
-    case RISK_CRITICAL:
-      executeEscapeManeuver("Risco critico; area evitada pelo DrenaBot");
-      break;
-
-    case RISK_FAULT:
-    default:
-      stopMotors();
-      currentAction = "FALHA DE SENSOR";
-      break;
+  // Patrulha simples e previsivel: a IA continua classificando o risco para
+  // a Central, enquanto as condicoes fisicas acionam as reacoes do carrinho.
+  if (distanceCm < 0.0f || waterRaw >= 4090) {
+    stopMotors();
+    currentAction = "FALHA DE SENSOR";
+    return;
   }
+
+  if (distanceCm <= OBSTACLE_AVOID_DISTANCE_CM) {
+    executeEscapeManeuver("Obstaculo detectado; desvio executado");
+    return;
+  }
+
+  moveForward();
 }
 
 // ----------------------------------------------------------------------
