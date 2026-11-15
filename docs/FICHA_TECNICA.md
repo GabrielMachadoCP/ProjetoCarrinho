@@ -13,7 +13,7 @@
 | Novo sensor | sensor analógico de presença/nível de água |
 | IA | rede neural TinyML embarcada |
 | Operação | manual e autônoma |
-| Interface | Central Web local com alerta e reconhecimento |
+| Interface | Central Web local com alerta e confirmação da obstrução |
 
 ## Problema
 

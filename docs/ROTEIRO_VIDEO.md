@@ -53,7 +53,7 @@ Grave em plano contínuo sempre que possível:
 5. objeto à frente e reação do robô;
 6. sensor encontrando água e o carrinho parando;
 7. alerta destacado, nível e contador de ocorrências na Central;
-8. botão **Reconhecer alerta**;
+8. botão **Confirmar drenagem obstruída** e retomada com umidade residual;
 9. sensor voltando ao seco e encerramento da ocorrência;
 10. probabilidades e classe mudando no painel.
 

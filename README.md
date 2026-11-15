@@ -20,7 +20,7 @@ O recorte do MVP é intencionalmente simples e demonstrável:
 2. combinar nível, tendência de subida e risco de obstáculo;
 3. classificar a situação como **NORMAL**, **ATENÇÃO** ou **CRÍTICO**;
 4. interromper a patrulha quando encontrar água;
-5. exibir um alerta na Central Web e aguardar o reconhecimento do operador;
+5. exibir um alerta na Central Web e aguardar a confirmação da drenagem obstruída;
 6. permitir patrulha autônoma e controle manual pelo mesmo painel.
 
 O MVP usa comunicação local entre o ESP32 e o celular. O mesmo núcleo pode evoluir para sensores fixos, rotas maiores, histórico em nuvem, notificações remotas e manutenção preditiva — sem limitar a solução a um único tipo de imóvel.
@@ -49,7 +49,7 @@ O ESP32 cria a rede `DrenaHub-DrenaBot`, hospeda a Central Web e executa a infer
 | IA | classificação de obstáculo | classificação multivariada de risco hídrico |
 | Entradas da IA | distância | nível, velocidade de subida e obstáculo |
 | Decisão | livre/atenção/obstáculo | normal/atenção/crítico/falha segura |
-| Interface | comandos de movimento | Central Web com patrulha, telemetria, alerta e reconhecimento |
+| Interface | comandos de movimento | Central Web com patrulha, telemetria, alerta e confirmação da ocorrência |
 | Aplicação | carrinho genérico | inspeção CitizenTech de drenagem |
 
 ## Hardware
@@ -92,10 +92,10 @@ A página embarcada no ESP32 representa, de forma simples, a central do futuro a
 - nível de água, distância e probabilidades da IA;
 - quantidade de ocorrências encontradas;
 - alerta destacado de água;
-- botão **Reconhecer alerta**;
+- botão **Confirmar drenagem obstruída**;
 - calibração seca e molhada.
 
-Ao cruzar 30% do nível calibrado, o evento fica registrado na Central e o robô para. Assim que a leitura atual volta para menos de 30%, o carrinho pode continuar a patrulha. O aviso permanece visível separadamente até o operador reconhecê-lo.
+Ao cruzar 30% do nível calibrado, o evento fica registrado na Central e o robô para. Ao clicar em **Confirmar drenagem obstruída**, o alerta fecha, o movimento é liberado e a leitura atual passa a ser a referência de umidade residual. Assim, o carrinho não precisa esperar o sensor secar totalmente. Uma nova subida de pelo menos 12 pontos percentuais gera outra ocorrência. Se o sensor estiver saturado, a Central pede que ele seja seco porque não existe margem de leitura para identificar mais água.
 
 O fluxo completo está em [docs/CENTRAL_DRENAHUB.md](docs/CENTRAL_DRENAHUB.md).
 
@@ -121,9 +121,10 @@ Ao confirmar o modo autônomo, o ESP32 força uma nova leitura dos sensores e ex
 |---|---|
 | NORMAL e caminho livre | avança |
 | Água detectada | para e abre alerta na Central |
-| Sensor ainda com água | permanece parado |
-| Sensor abaixo de 30% | retoma a patrulha, mesmo se o aviso ainda estiver pendente |
-| Operador reconhece o alerta | encerra o aviso na Central quando o ponto estiver seco |
+| Sensor ainda com água e ocorrência não confirmada | permanece parado |
+| Operador confirma a drenagem obstruída | fecha o alerta e retoma a patrulha usando a umidade atual como referência |
+| Nova subida de água de 12 pontos percentuais | registra outra ocorrência e para novamente |
+| Sensor saturado | informa que é necessário secar para detectar uma nova ocorrência |
 | ATENÇÃO da IA, mas caminho seco e livre | continua a patrulha e informa a classe na Central |
 | CRÍTICO por obstáculo | executa manobra de afastamento |
 | Obstáculo próximo | executa desvio |
@@ -165,7 +166,8 @@ O código usa somente bibliotecas que já acompanham o core ESP32: `WiFi`, `WebS
 5. Volte o sensor ao seco e espere o painel indicar **SECO**.
 6. Clique em **Iniciar modo autônomo** e confirme o aviso de segurança.
 7. Encoste o sensor na referência de água e confirme a parada e o alerta destacado.
-8. Clique em **Reconhecer alerta**, seque o sensor e observe o encerramento da ocorrência.
+8. Clique em **Confirmar drenagem obstruída** e observe a retomada mesmo com umidade residual.
+9. Aplique uma nova quantidade de água para demonstrar uma segunda ocorrência; se o painel indicar saturação, seque parcialmente o sensor antes.
 
 As calibrações ficam salvas na memória do ESP32. O ensaio deve usar pouca água e nunca deve colocar motores ou eletrônica dentro de uma poça.
 

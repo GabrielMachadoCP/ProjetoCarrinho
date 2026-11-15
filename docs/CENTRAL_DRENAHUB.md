@@ -16,10 +16,11 @@ sequenceDiagram
     E->>R: parar patrulha
     E->>C: água + nível + ocorrência
     C-->>O: alerta visual (e vibração, se suportada)
-    R->>E: nível abaixo de 30%
-    E->>R: retomar patrulha
-    O->>C: reconhecer alerta
+    O->>C: confirmar drenagem obstruída
     C->>E: POST /alert/ack
+    E->>R: retomar com referência residual
+    R->>E: nova subida de 12 pontos percentuais
+    E->>R: parar novamente
 ```
 
 ## Informações apresentadas
@@ -40,11 +41,11 @@ sequenceDiagram
 ## Regras simples
 
 1. A água é detectada a partir de 30% do intervalo calibrado.
-2. O alerta fica registrado mesmo que a leitura diminua.
-3. A atuação dos motores para somente enquanto a leitura atual está em 30% ou mais.
-4. A patrulha retoma quando a leitura atual fica abaixo de 30%.
-5. O reconhecimento serve para encerrar o aviso na Central e não bloqueia os motores.
-6. A histerese de 15% é usada apenas para estabilizar o estado visual do alerta.
+2. A ocorrência bloqueia o movimento até ser confirmada ou até a leitura ficar seca.
+3. **Confirmar drenagem obstruída** fecha o alerta, libera o motor e transforma a leitura atual em referência residual.
+4. Enquanto houver umidade residual, uma subida de 12 pontos percentuais gera uma nova ocorrência.
+5. Abaixo de 15%, o sensor é considerado seco e volta à detecção normal de 30%.
+6. Se a leitura residual estiver em 95% ou mais, a Central pede a secagem do sensor porque ele está saturado.
 7. A condição molhada usada na calibração não conta como ocorrência.
 8. A confirmação do modo autônomo força uma leitura atual dos sensores e já executa a primeira ação.
 9. A parada de emergência muda o robô para manual e desliga os quatro sinais da ponte H.
