@@ -12,17 +12,18 @@
 
 ## O projeto
 
-O **DrenaHub** é uma proposta de monitoramento preventivo de drenagem para condomínios, galpões, estacionamentos, centros logísticos e outras áreas privadas ou públicas. O primeiro dispositivo do ecossistema, o **DrenaBot 01**, evolui o carrinho inteligente desenvolvido nas etapas anteriores: ele percorre uma área, mede a presença de água e identifica obstáculos, classifica o risco localmente com TinyML e reage sem depender de internet.
+O **DrenaHub** é uma proposta de monitoramento preventivo de drenagem para condomínios, galpões, estacionamentos, centros logísticos e outras áreas privadas ou públicas. O primeiro dispositivo do ecossistema, o **DrenaBot 01**, evolui o carrinho inteligente desenvolvido nas etapas anteriores: ele percorre uma área, mede a presença de água e identifica obstáculos, classifica o risco localmente com TinyML e envia o evento para a **Central DrenaHub**, aberta no celular.
 
 O recorte do MVP é intencionalmente simples e demonstrável:
 
 1. detectar água em um ponto de inspeção;
 2. combinar nível, tendência de subida e risco de obstáculo;
 3. classificar a situação como **NORMAL**, **ATENÇÃO** ou **CRÍTICO**;
-4. parar ou se afastar quando houver risco;
-5. exibir telemetria e permitir controle manual por um painel web local.
+4. interromper a patrulha quando encontrar água;
+5. exibir um alerta na Central Web e aguardar o reconhecimento do operador;
+6. permitir patrulha autônoma e controle manual pelo mesmo painel.
 
-O mesmo núcleo pode evoluir para sensores fixos, rotas maiores, histórico em nuvem, alertas e manutenção preditiva — sem limitar a solução a um único tipo de imóvel.
+O MVP usa comunicação local entre o ESP32 e o celular. O mesmo núcleo pode evoluir para sensores fixos, rotas maiores, histórico em nuvem, notificações remotas e manutenção preditiva — sem limitar a solução a um único tipo de imóvel.
 
 ## Arquitetura
 
@@ -34,10 +35,11 @@ flowchart TD
     E --> F["TinyML local"]
     F --> G["Decisão autônoma"]
     G --> H["L298N e motores"]
-    D --> I["Painel web local"]
+    D --> I["Central Web"]
+    I --> J["Alerta ao operador"]
 ```
 
-O ESP32 cria a rede `DrenaHub-DrenaBot`, hospeda o painel e executa a inferência. Não é necessário roteador, computador ou serviço em nuvem durante a demonstração.
+O ESP32 cria a rede `DrenaHub-DrenaBot`, hospeda a Central Web e executa a inferência. Não é necessário roteador, computador ou serviço em nuvem durante a demonstração. O aviso aparece enquanto o celular estiver conectado ao robô e com a Central aberta.
 
 ## Evolução em relação ao carrinho anterior
 
@@ -47,7 +49,7 @@ O ESP32 cria a rede `DrenaHub-DrenaBot`, hospeda o painel e executa a inferênci
 | IA | classificação de obstáculo | classificação multivariada de risco hídrico |
 | Entradas da IA | distância | nível, velocidade de subida e obstáculo |
 | Decisão | livre/atenção/obstáculo | normal/atenção/crítico/falha segura |
-| Interface | comandos de movimento | comandos, telemetria, probabilidades e calibração |
+| Interface | comandos de movimento | Central Web com patrulha, telemetria, alerta e reconhecimento |
 | Aplicação | carrinho genérico | inspeção CitizenTech de drenagem |
 
 ## Hardware
@@ -79,6 +81,23 @@ O ESP32 cria a rede `DrenaHub-DrenaBot`, hospeda o painel e executa a inferênci
 
 Veja o guia completo em [hardware/ligacoes_drenahub.md](hardware/ligacoes_drenahub.md).
 
+## Central DrenaHub
+
+A página embarcada no ESP32 representa, de forma simples, a central do futuro aplicativo. Ela reúne:
+
+- conexão e modo atual do DrenaBot;
+- botão para iniciar a patrulha autônoma;
+- movimentação manual;
+- nível de água, distância e probabilidades da IA;
+- quantidade de ocorrências encontradas;
+- alerta destacado de água;
+- botão **Reconhecer alerta**;
+- calibração seca e molhada.
+
+Ao cruzar 30% do nível calibrado, o evento fica registrado na Central e o robô para. Uma histerese considera o ponto seco novamente abaixo de 15%, evitando alertas oscilando perto do limite. A patrulha só prossegue depois que a ocorrência for reconhecida e o sensor voltar ao seco.
+
+O fluxo completo está em [docs/CENTRAL_DRENAHUB.md](docs/CENTRAL_DRENAHUB.md).
+
 ## Inteligência embarcada
 
 A rede neural possui três entradas, uma camada oculta com seis neurônios e três saídas:
@@ -98,8 +117,12 @@ Além da IA, limites determinísticos funcionam como camada de segurança: falha
 | Situação | Resposta do DrenaBot |
 |---|---|
 | NORMAL e caminho livre | avança |
-| ATENÇÃO | para para inspeção |
-| CRÍTICO | para, recua e gira |
+| Água detectada | para e abre alerta na Central |
+| Alerta não reconhecido | permanece parado |
+| Alerta reconhecido, mas sensor molhado | permanece parado |
+| Alerta reconhecido e sensor seco | encerra ocorrência e retoma a patrulha |
+| ATENÇÃO sem contato de água | para para inspeção |
+| CRÍTICO por obstáculo | executa manobra de afastamento |
 | Obstáculo próximo | executa desvio |
 | Falha de sensor | para em modo seguro |
 
@@ -135,7 +158,10 @@ O código usa somente bibliotecas que já acompanham o core ESP32: `WiFi`, `WebS
 2. Ligue o robô e abra o painel.
 3. Com o sensor limpo e seco, clique em **Registrar seco**.
 4. Encoste apenas a área sensível em uma esponja úmida ou bandeja rasa e clique em **Registrar molhado**.
-5. Volte ao seco, ative o modo autônomo e demonstre os três cenários.
+5. Volte o sensor ao seco e espere o painel indicar **SECO**.
+6. Clique em **Iniciar patrulha autônoma**.
+7. Encoste o sensor na referência de água e confirme a parada e o alerta destacado.
+8. Clique em **Reconhecer alerta**, seque o sensor e observe o encerramento da ocorrência.
 
 As calibrações ficam salvas na memória do ESP32. O ensaio deve usar pouca água e nunca deve colocar motores ou eletrônica dentro de uma poça.
 
@@ -146,6 +172,7 @@ python -m pip install -r tinyml/requirements.txt
 python tinyml/train_drenahub_model.py
 g++ -std=c++17 tests/model_smoke.cpp -o model_smoke
 ./model_smoke
+python tests/dashboard_contract.py
 ```
 
 Para coletar dados reais pela serial:
@@ -178,7 +205,7 @@ python tinyml/train_drenahub_model.py --input tinyml/data/drenahub_real.csv
 | Entregável | Estado |
 |---|---|
 | Firmware do DrenaBot | concluído, compilado e versionado |
-| Painel web responsivo | concluído e embarcado no firmware |
+| Central Web responsiva com alerta | concluída e embarcada no firmware |
 | Pipeline TinyML reproduzível | concluído |
 | Baseline e teste C++ | concluídos |
 | Documentação técnica e checklist | concluídos |
@@ -207,3 +234,4 @@ O DrenaHub transforma um robô educacional em uma ferramenta de inspeção preve
 - Valide a polaridade e mantenha GND comum entre ESP32 e L298N.
 - Nunca aplique 5 V diretamente a um GPIO do ESP32.
 - A assertividade real só pode ser declarada após testes físicos documentados.
+- O alerta deste MVP é local: não é uma notificação em nuvem e exige conexão à rede do ESP32.

@@ -16,7 +16,7 @@ Meta sugerida: **5min30s a 5min50s**, deixando margem para cortes e tela final.
 
 **Fala sugerida:**
 
-“O DrenaHub é uma proposta de monitoramento preventivo de drenagem. Este é o DrenaBot 01, nosso MVP móvel. Ele evolui o carrinho das etapas anteriores para detectar água, evitar obstáculos, classificar o risco localmente e reagir sem depender de internet.”
+“O DrenaHub é uma proposta de monitoramento preventivo de drenagem. Este é o DrenaBot 01, nosso MVP móvel. Ele evolui o carrinho das etapas anteriores para patrulhar uma área, detectar água, evitar obstáculos e avisar o operador pela Central Web, sem depender de internet.”
 
 ## 1:05–1:50 — hardware e novo sensor
 
@@ -30,7 +30,7 @@ Explique:
 - fontes separadas e GND comum;
 - cuidado para manter eletrônica longe da água.
 
-Mostre a leitura do ADC mudando no painel ao tocar uma esponja úmida.
+Mostre a leitura do ADC mudando na Central ao tocar uma esponja úmida.
 
 ## 1:50–2:35 — IA
 
@@ -46,14 +46,16 @@ Substitua qualquer métrica mencionada pela obtida no dataset **real**. Não apr
 
 Grave em plano contínuo sempre que possível:
 
-1. conexão à rede e abertura do painel;
+1. conexão à rede e abertura da Central DrenaHub;
 2. calibração seca e molhada;
 3. controle manual;
-4. modo autônomo em condição normal;
+4. botão **Iniciar patrulha autônoma** em condição normal;
 5. objeto à frente e reação do robô;
-6. condição intermediária e parada;
-7. condição crítica e manobra de afastamento;
-8. probabilidades e classe mudando no painel.
+6. sensor encontrando água e o carrinho parando;
+7. alerta destacado, nível e contador de ocorrências na Central;
+8. botão **Reconhecer alerta**;
+9. sensor voltando ao seco e encerramento da ocorrência;
+10. probabilidades e classe mudando no painel.
 
 Uma pessoa pode segurar o celular enquanto outra opera a maquete.
 
@@ -63,7 +65,7 @@ Uma pessoa pode segurar o celular enquanto outra opera a maquete.
 
 **Fala sugerida:**
 
-“Validamos movimentos, distância, calibração, persistência, três classes e parada segura. Como limitação, este sensor é apropriado ao protótipo e não a uma enchente real. Uma versão comercial usaria proteção IP, sensores industriais e histórico em nuvem.”
+“Validamos movimentos, distância, calibração, persistência, três classes, alerta na Central e parada segura. Como limitação, este sensor é apropriado ao protótipo e a comunicação atual é local. Uma versão comercial usaria proteção IP, sensores industriais, nuvem e notificações remotas.”
 
 Só diga que um teste foi validado se ele realmente foi executado.
 

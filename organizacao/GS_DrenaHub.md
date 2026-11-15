@@ -2,7 +2,7 @@
 
 ## Objetivo da sprint
 
-Transformar o carrinho 2WD em um protótipo CitizenTech capaz de identificar condições de água e reagir localmente.
+Transformar o carrinho 2WD em um protótipo CitizenTech capaz de patrulhar, identificar água, parar e avisar o operador pela Central DrenaHub.
 
 ## Responsabilidades sugeridas
 
@@ -20,6 +20,7 @@ A divisão é apenas operacional; todos devem compreender problema, arquitetura 
 Uma tarefa só está concluída quando:
 
 - foi executada no hardware quando aplicável;
+- o alerta apareceu e foi reconhecido pela Central quando aplicável;
 - possui evidência;
 - está versionada;
 - não contradiz a pinagem final;

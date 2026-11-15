@@ -84,6 +84,14 @@ float distanceCm = -1.0f;
 float obstacleRisk = 0.0f;
 float classProbabilities[3] = {1.0f, 0.0f, 0.0f};
 
+bool waterPresent = false;
+bool waterAlertActive = false;
+bool waterAlertAcknowledged = false;
+bool suppressWaterAlertUntilDry = false;
+unsigned int waterEventCount = 0;
+unsigned long lastWaterEventAt = 0;
+float lastWaterEventLevel = 0.0f;
+
 String currentAction = "PARADO";
 String lastEvent = "Sistema iniciado";
 unsigned long lastSensorUpdate = 0;
@@ -92,6 +100,8 @@ unsigned long lastSerialLog = 0;
 
 constexpr unsigned long SENSOR_INTERVAL_MS = 200;
 constexpr unsigned long MANEUVER_COOLDOWN_MS = 4500;
+constexpr float WATER_DETECTION_THRESHOLD = 0.30f;
+constexpr float WATER_CLEAR_THRESHOLD = 0.15f;
 
 // ----------------------------------------------------------------------
 // PAGINA WEB EMBARCADA
@@ -102,42 +112,83 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DrenaHub | DrenaBot</title>
+  <title>Central DrenaHub</title>
   <style>
-    :root{--navy:#082744;--blue:#0d6e9f;--cyan:#26b6c7;--bg:#edf4f7;--card:#fff;--text:#173042;--muted:#607783;--green:#178a58;--yellow:#d69316;--red:#c33b43}
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
-    header{background:linear-gradient(130deg,var(--navy),var(--blue));color:white;padding:22px 18px} header h1{margin:0;font-size:27px} header p{margin:6px 0 0;opacity:.86}
-    main{max-width:950px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px}.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 4px 14px #17304212}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.value{font-size:27px;font-weight:700;margin-top:6px}.risk{display:inline-block;padding:8px 13px;border-radius:999px;color:white;font-weight:bold}.NORMAL{background:var(--green)}.ATENCAO{background:var(--yellow)}.CRITICO,.FALHA{background:var(--red)}
-    .bar{height:12px;background:#dae5ea;border-radius:8px;overflow:hidden;margin-top:10px}.fill{height:100%;width:0;background:var(--cyan);transition:.3s}.section{margin-top:15px}.controls{display:grid;grid-template-columns:repeat(3,82px);gap:8px;justify-content:center}.controls button,.action{border:0;border-radius:11px;background:var(--navy);color:white;min-height:58px;font-size:20px;font-weight:bold;cursor:pointer}.controls .stop{background:var(--red)}.action{font-size:14px;min-height:44px;padding:0 14px;margin:5px}.action.auto{background:var(--green)}.action.cal{background:var(--blue)}.note{font-size:13px;color:var(--muted);line-height:1.45}.statusline{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.small{font-size:14px;font-weight:600}.footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
+    :root{--navy:#082744;--blue:#0d6e9f;--cyan:#20a9bd;--bg:#edf4f7;--card:#fff;--text:#173042;--muted:#607783;--green:#168657;--yellow:#d58a11;--red:#c43c45;--softred:#fff0f1}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,sans-serif;color:var(--text)}
+    header{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;padding:22px 18px}
+    .head{max-width:980px;margin:auto;display:flex;justify-content:space-between;gap:16px;align-items:center}.head h1{font-size:27px;margin:0}.head p{margin:6px 0 0;opacity:.86}.connection{font-size:13px;background:#ffffff1c;padding:9px 12px;border-radius:999px;white-space:nowrap}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#6ee7a7;margin-right:7px}
+    main{max-width:980px;margin:auto;padding:18px}.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 4px 14px #17304212}.section{margin-top:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:13px}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.value{font-size:26px;font-weight:700;margin-top:6px}.note{font-size:13px;color:var(--muted);line-height:1.45}.small{font-size:14px;font-weight:600}.statusline{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.risk{display:inline-block;padding:8px 13px;border-radius:999px;color:#fff;font-weight:bold}.NORMAL{background:var(--green)}.ATENCAO{background:var(--yellow)}.CRITICO,.FALHA{background:var(--red)}
+    .alert-panel{display:none;border:2px solid var(--red);background:var(--softred);border-radius:15px;padding:17px;grid-template-columns:1fr auto;gap:12px;align-items:center}.alert-panel.show{display:grid}.alert-panel.ack{border-color:var(--yellow);background:#fff8e8}.alert-title{color:var(--red);font-size:20px;font-weight:800;margin-bottom:5px}.alert-panel.ack .alert-title{color:#a36909}.alert-button{border:0;background:var(--red);color:#fff;border-radius:10px;padding:13px 16px;font-weight:bold;cursor:pointer}.alert-button:disabled{background:#9a9a9a;cursor:default}
+    .bar{height:12px;background:#dae5ea;border-radius:8px;overflow:hidden;margin-top:10px}.fill{height:100%;width:0;background:var(--cyan);transition:.3s}.water-found{color:var(--red)}
+    .patrol{display:grid;grid-template-columns:1fr 1fr;gap:10px}.action{border:0;border-radius:11px;background:var(--navy);color:#fff;min-height:46px;padding:0 14px;font-size:14px;font-weight:bold;cursor:pointer}.action.auto{background:var(--green)}.action.cal{background:var(--blue);margin:4px}.action.secondary{background:#61727d}
+    .controls{display:grid;grid-template-columns:repeat(3,82px);gap:8px;justify-content:center;margin-top:13px}.controls button{border:0;border-radius:11px;background:var(--navy);color:#fff;min-height:58px;font-size:20px;font-weight:bold;cursor:pointer}.controls .stop{background:var(--red)}
+    .eventbox{border-left:4px solid var(--cyan);padding-left:12px;margin-top:10px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
+    @media(max-width:600px){.head{align-items:flex-start}.connection{font-size:0}.connection .dot{margin:0}.patrol{grid-template-columns:1fr}.alert-panel{grid-template-columns:1fr}.alert-button{width:100%}}
   </style>
 </head>
 <body>
-  <header><h1>DrenaHub</h1><p>DrenaBot 01 · monitoramento preventivo de drenagem</p></header>
+  <header>
+    <div class="head">
+      <div><h1>Central DrenaHub</h1><p>DrenaBot 01 · patrulha autônoma e alerta de água</p></div>
+      <div id="connection" class="connection"><span class="dot"></span>Robô conectado</div>
+    </div>
+  </header>
   <main>
-    <div class="card statusline"><span id="risk" class="risk NORMAL">NORMAL</span><span id="mode" class="small">Modo manual</span><span id="action" class="small">Ação: PARADO</span></div>
+    <section id="alertPanel" class="alert-panel">
+      <div>
+        <div id="alertTitle" class="alert-title">ÁGUA DETECTADA</div>
+        <div id="alertMessage" class="small">O DrenaBot encontrou água e interrompeu a patrulha.</div>
+        <div id="alertDetail" class="note">Aguardando dados...</div>
+      </div>
+      <button id="ackButton" class="alert-button" onclick="command('/alert/ack')">RECONHECER ALERTA</button>
+    </section>
+
+    <div class="card statusline section">
+      <span id="risk" class="risk NORMAL">NORMAL</span>
+      <span id="mode" class="small">Patrulha manual</span>
+      <span id="action" class="small">Ação: PARADO</span>
+    </div>
+
     <div class="grid section">
-      <div class="card"><div class="label">Nível de água</div><div id="water" class="value">0%</div><div class="bar"><div id="waterBar" class="fill"></div></div><p id="raw" class="note">ADC: --</p></div>
-      <div class="card"><div class="label">Distância livre</div><div id="distance" class="value">-- cm</div><p class="note">HC-SR04 frontal</p></div>
-      <div class="card"><div class="label">Confiança TinyML</div><div id="confidence" class="value">--%</div><p id="probs" class="note">N -- · A -- · C --</p></div>
-      <div class="card"><div class="label">Último evento</div><div id="event" class="small" style="margin-top:10px">Sistema iniciado</div><p id="uptime" class="note">Tempo ativo: --</p></div>
+      <div class="card">
+        <div class="label">Sensor de água</div>
+        <div id="waterState" class="value">SECO</div>
+        <div id="water" class="small">Nível 0%</div>
+        <div class="bar"><div id="waterBar" class="fill"></div></div>
+        <p id="raw" class="note">ADC: --</p>
+      </div>
+      <div class="card"><div class="label">Caminho à frente</div><div id="distance" class="value">-- cm</div><p class="note">HC-SR04 frontal</p></div>
+      <div class="card"><div class="label">Decisão TinyML</div><div id="confidence" class="value">--%</div><p id="probs" class="note">N -- · A -- · C --</p></div>
+      <div class="card"><div class="label">Ocorrências de água</div><div id="eventCount" class="value">0</div><p id="lastDetection" class="note">Nenhuma ocorrência</p></div>
     </div>
 
     <div class="card section">
-      <div class="label">Controle manual</div>
-      <div class="controls" style="margin-top:12px">
+      <div class="label">Patrulha do DrenaBot</div>
+      <p class="note">No modo autônomo, o carrinho avança, evita obstáculos e para ao encontrar água. A Central mantém o alerta visível até o operador reconhecê-lo.</p>
+      <div class="patrol">
+        <button class="action auto" onclick="command('/mode/auto')">INICIAR PATRULHA AUTÔNOMA</button>
+        <button class="action secondary" onclick="command('/mode/manual')">ASSUMIR CONTROLE MANUAL</button>
+      </div>
+    </div>
+
+    <div class="card section">
+      <div class="label">Movimentação manual</div>
+      <div class="controls">
         <span></span><button data-hold="/move/forward">↑</button><span></span>
         <button data-hold="/move/left">←</button><button class="stop" onclick="command('/move/stop')">■</button><button data-hold="/move/right">→</button>
         <span></span><button data-hold="/move/reverse">↓</button><span></span>
       </div>
-      <div style="text-align:center;margin-top:10px">
-        <button class="action" onclick="command('/mode/manual')">MODO MANUAL</button>
-        <button class="action auto" onclick="command('/mode/auto')">MODO AUTÔNOMO</button>
-      </div>
+    </div>
+
+    <div class="card section">
+      <div class="label">Atividade da central</div>
+      <div class="eventbox"><div id="event" class="small">Sistema iniciado</div><div id="uptime" class="note">Tempo ativo: --</div></div>
     </div>
 
     <div class="card section">
       <div class="label">Calibração do sensor</div>
-      <p class="note">1. Completamente seco: pressione “Registrar seco”. 2. Molhe o sensor até o nível máximo usado na maquete e pressione “Registrar molhado”.</p>
+      <p class="note">Registre primeiro a leitura completamente seca. Depois encoste somente a área sensível na referência molhada da maquete.</p>
       <button class="action cal" onclick="calibrate('/calibrate/dry','Registrar a leitura atual como SECO?')">REGISTRAR SECO</button>
       <button class="action cal" onclick="calibrate('/calibrate/wet','Registrar a leitura atual como MOLHADO?')">REGISTRAR MOLHADO</button>
       <span id="calibration" class="note">Seco: -- · Molhado: --</span>
@@ -145,7 +196,12 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(
   </main>
   <div class="footer">FIAP 4ESPY · Global Solution CitizenTech · Project-Based Maker Lab</div>
   <script>
-    async function command(path){await fetch(path,{method:'POST'});await update()}
+    let seenWaterEvents = -1;
+    async function command(path){
+      const response=await fetch(path,{method:'POST'});
+      if(!response.ok){alert(await response.text())}
+      await update();
+    }
     async function calibrate(path,message){if(confirm(message)){await command(path)}}
     document.querySelectorAll('[data-hold]').forEach(btn=>{
       const start=e=>{e.preventDefault();command(btn.dataset.hold)};
@@ -155,22 +211,52 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(
     });
     async function update(){
       try{
-        const r=await fetch('/api/status');const d=await r.json();
+        const response=await fetch('/api/status',{cache:'no-store'});
+        const d=await response.json();
+        document.getElementById('connection').innerHTML='<span class="dot"></span>Robô conectado';
         const risk=document.getElementById('risk');risk.textContent=d.risk;risk.className='risk '+d.risk;
-        document.getElementById('mode').textContent='Modo '+d.mode;
+        document.getElementById('mode').textContent=d.mode==='autonomo'?'Patrulha autônoma':'Patrulha manual';
         document.getElementById('action').textContent='Ação: '+d.action;
-        document.getElementById('water').textContent=Math.round(d.water_level*100)+'%';
-        document.getElementById('waterBar').style.width=Math.round(d.water_level*100)+'%';
+
+        const waterPercent=Math.round(d.water_level*100);
+        const state=document.getElementById('waterState');
+        state.textContent=d.water_present?'ÁGUA DETECTADA':'SECO';
+        state.className='value'+(d.water_present?' water-found':'');
+        document.getElementById('water').textContent='Nível '+waterPercent+'%';
+        document.getElementById('waterBar').style.width=waterPercent+'%';
+        document.getElementById('waterBar').style.background=d.water_present?'var(--red)':'var(--cyan)';
         document.getElementById('raw').textContent='ADC: '+d.water_raw+' · Subida: '+d.rise_rate.toFixed(2);
         document.getElementById('distance').textContent=d.distance_cm<0?'Falha':d.distance_cm.toFixed(1)+' cm';
         document.getElementById('confidence').textContent=Math.round(d.confidence*100)+'%';
         document.getElementById('probs').textContent='N '+Math.round(d.probabilities[0]*100)+'% · A '+Math.round(d.probabilities[1]*100)+'% · C '+Math.round(d.probabilities[2]*100)+'%';
+        document.getElementById('eventCount').textContent=d.alert.events;
+        document.getElementById('lastDetection').textContent=d.alert.events?'Último nível: '+Math.round(d.alert.last_level*100)+'%':'Nenhuma ocorrência';
+
+        const panel=document.getElementById('alertPanel');
+        const button=document.getElementById('ackButton');
+        if(d.alert.active){
+          panel.className='alert-panel show'+(d.alert.acknowledged?' ack':'');
+          document.getElementById('alertTitle').textContent=d.alert.acknowledged?'ALERTA RECONHECIDO':'ÁGUA DETECTADA';
+          document.getElementById('alertMessage').textContent=d.water_present?'O DrenaBot encontrou água e interrompeu a patrulha.':'A água não está mais presente; confirme a ocorrência.';
+          document.getElementById('alertDetail').textContent='Ocorrência #'+d.alert.events+' · nível '+Math.round(d.alert.last_level*100)+'% · registrada com '+Math.floor(d.alert.last_at_s)+' s de operação';
+          button.disabled=d.alert.acknowledged;
+          button.textContent=d.alert.acknowledged?'ALERTA RECONHECIDO':'RECONHECER ALERTA';
+          document.title=(d.alert.acknowledged?'Alerta reconhecido':'⚠ Água detectada')+' | DrenaHub';
+          if((seenWaterEvents<0||d.alert.events>seenWaterEvents)&&!d.alert.acknowledged&&navigator.vibrate){navigator.vibrate([250,120,250])}
+        }else{
+          panel.className='alert-panel';
+          document.title='Central DrenaHub';
+        }
+        seenWaterEvents=d.alert.events;
         document.getElementById('event').textContent=d.last_event;
         document.getElementById('uptime').textContent='Tempo ativo: '+Math.floor(d.uptime_s)+' s';
         document.getElementById('calibration').textContent='Seco: '+d.calibration.dry+' · Molhado: '+d.calibration.wet;
-      }catch(e){document.getElementById('event').textContent='Sem comunicação com o DrenaBot'}
+      }catch(error){
+        document.getElementById('connection').innerHTML='<span class="dot" style="background:#f16b72"></span>Sem conexão';
+        document.getElementById('event').textContent='Sem comunicação com o DrenaBot';
+      }
     }
-    update();setInterval(update,1000);
+    update();setInterval(update,800);
   </script>
 </body>
 </html>
@@ -209,6 +295,43 @@ void beep(int durationMs) {
   digitalWrite(BUZZER_PIN, HIGH);
   delay(durationMs);
   digitalWrite(BUZZER_PIN, LOW);
+}
+
+void updateWaterAlert() {
+  if (!waterWindowReady) return;
+
+  // A referência molhada da calibração não deve virar uma ocorrência.
+  if (suppressWaterAlertUntilDry) {
+    waterPresent = waterLevel >= WATER_CLEAR_THRESHOLD;
+    if (!waterPresent) suppressWaterAlertUntilDry = false;
+    return;
+  }
+
+  // Histerese: ativa em 30% e considera seco somente abaixo de 15%.
+  const bool detectedNow = waterPresent
+      ? waterLevel >= WATER_CLEAR_THRESHOLD
+      : waterLevel >= WATER_DETECTION_THRESHOLD;
+
+  if (detectedNow && !waterPresent) {
+    waterPresent = true;
+    waterAlertActive = true;
+    waterAlertAcknowledged = false;
+    waterEventCount++;
+    lastWaterEventAt = millis();
+    lastWaterEventLevel = waterLevel;
+    setEvent("Agua detectada; alerta enviado para a Central DrenaHub");
+    beep(250);
+  } else if (detectedNow && waterPresent) {
+    if (waterLevel > lastWaterEventLevel) lastWaterEventLevel = waterLevel;
+  } else if (!detectedNow && waterPresent) {
+    waterPresent = false;
+    if (waterAlertAcknowledged) {
+      waterAlertActive = false;
+      setEvent("Ponto seco; ocorrencia encerrada");
+    } else {
+      setEvent("Agua nao esta mais presente; alerta aguarda reconhecimento");
+    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -313,6 +436,7 @@ void updateSensorsAndInference() {
     currentRisk = RISK_ATTENTION;
   }
 
+  updateWaterAlert();
   digitalWrite(STATUS_LED_PIN, currentRisk == RISK_NORMAL ? LOW : HIGH);
 
   if (millis() - lastSerialLog >= 1000) {
@@ -353,6 +477,20 @@ void runAutonomousMode() {
   if (!waterWindowReady) {
     stopMotors();
     currentAction = "CALIBRANDO LEITURAS";
+    return;
+  }
+
+  if (suppressWaterAlertUntilDry && waterPresent) {
+    stopMotors();
+    currentAction = "AGUARDANDO SENSOR SECAR";
+    return;
+  }
+
+  if (waterAlertActive) {
+    stopMotors();
+    currentAction = waterPresent
+        ? "AGUA DETECTADA - PARADO"
+        : "AGUARDANDO RECONHECIMENTO";
     return;
   }
 
@@ -407,6 +545,8 @@ String statusJson() {
   json += "\"action\":\"" + currentAction + "\",";
   json += "\"water_raw\":" + String(waterRaw) + ",";
   json += "\"water_level\":" + String(waterLevel, 4) + ",";
+  json += "\"water_present\":";
+  json += waterPresent ? "true," : "false,";
   json += "\"rise_rate\":" + String(riseRate, 4) + ",";
   json += "\"distance_cm\":" + String(distanceCm, 2) + ",";
   json += "\"obstacle_risk\":" + String(obstacleRisk, 4) + ",";
@@ -414,6 +554,14 @@ String statusJson() {
   json += "\"probabilities\":[" + String(classProbabilities[0], 4) + "," + String(classProbabilities[1], 4) + "," + String(classProbabilities[2], 4) + "],";
   json += "\"last_event\":\"" + lastEvent + "\",";
   json += "\"uptime_s\":" + String(millis() / 1000.0f, 1) + ",";
+  json += "\"alert\":{";
+  json += "\"active\":";
+  json += waterAlertActive ? "true," : "false,";
+  json += "\"acknowledged\":";
+  json += waterAlertAcknowledged ? "true," : "false,";
+  json += "\"events\":" + String(waterEventCount) + ",";
+  json += "\"last_at_s\":" + String(lastWaterEventAt / 1000.0f, 1) + ",";
+  json += "\"last_level\":" + String(lastWaterEventLevel, 4) + "},";
   json += "\"calibration\":{\"dry\":" + String(dryCalibration) + ",\"wet\":" + String(wetCalibration) + "}";
   json += "}";
   return json;
@@ -432,15 +580,26 @@ void configureWebServer() {
   server.on("/mode/manual", HTTP_POST, []() {
     operatingMode = MODE_MANUAL;
     stopMotors();
-    setEvent("Modo manual ativado");
+    setEvent("Controle manual assumido pelo operador");
     sendOk("MANUAL");
   });
 
   server.on("/mode/auto", HTTP_POST, []() {
     operatingMode = MODE_AUTONOMOUS;
     stopMotors();
-    setEvent("Modo autonomo TinyML ativado");
+    setEvent("Patrulha autonoma TinyML iniciada");
     sendOk("AUTONOMO");
+  });
+
+  server.on("/alert/ack", HTTP_POST, []() {
+    if (!waterAlertActive) {
+      sendOk("SEM_ALERTA");
+      return;
+    }
+    waterAlertAcknowledged = true;
+    if (!waterPresent) waterAlertActive = false;
+    setEvent("Alerta de agua reconhecido pelo operador");
+    sendOk("ALERTA_RECONHECIDO");
   });
 
   server.on("/move/forward", HTTP_POST, []() { requireManual(moveForward); });
@@ -465,6 +624,9 @@ void configureWebServer() {
     }
     wetCalibration = waterRaw;
     preferences.putInt("wet", wetCalibration);
+    suppressWaterAlertUntilDry = true;
+    waterAlertActive = false;
+    waterAlertAcknowledged = false;
     setEvent("Calibracao molhada registrada: " + String(wetCalibration));
     sendOk("MOLHADO=" + String(wetCalibration));
   });

@@ -13,7 +13,7 @@
 | Novo sensor | sensor analógico de presença/nível de água |
 | IA | rede neural TinyML embarcada |
 | Operação | manual e autônoma |
-| Interface | painel web local responsivo |
+| Interface | Central Web local com alerta e reconhecimento |
 
 ## Problema
 
@@ -21,7 +21,7 @@ Pequenos acúmulos de água em garagens, docas, depósitos e áreas técnicas po
 
 ## Proposta
 
-Um robô de baixo custo percorre pontos de inspeção e combina presença de água, tendência recente e distância de obstáculos. O processamento ocorre no próprio ESP32. O protótipo reage localmente e apresenta os dados ao operador em um painel acessível pelo celular.
+Um robô de baixo custo percorre pontos de inspeção e combina presença de água, tendência recente e distância de obstáculos. O processamento ocorre no próprio ESP32. O protótipo reage localmente e apresenta os dados ao operador na Central DrenaHub, acessível pelo celular. Quando encontra água, ele interrompe a patrulha e mantém um alerta visível até a confirmação humana.
 
 ## Hipótese de valor
 
@@ -37,7 +37,7 @@ Se equipes de operação puderem verificar áreas vulneráveis de forma mais fre
 
 ## Escalabilidade
 
-O DrenaBot é o primeiro ponto de entrada. O mesmo software pode integrar sensores fixos, dispositivos adicionais, mapas de inspeção, histórico em nuvem, alertas e ordens de manutenção. Assim, a solução começa com detecção móvel e pode evoluir para uma plataforma de operação hídrica.
+O DrenaBot e a Central Web são o primeiro ponto de entrada. O mesmo software pode integrar sensores fixos, dispositivos adicionais, mapas de inspeção, histórico em nuvem, notificações remotas e ordens de manutenção. Assim, a solução começa com detecção móvel local e pode evoluir para uma plataforma de operação hídrica.
 
 ## Indicadores para um piloto futuro
 

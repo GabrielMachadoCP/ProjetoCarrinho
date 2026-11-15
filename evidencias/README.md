@@ -12,5 +12,7 @@ Nomes sugeridos:
 - `06-painel-critico.jpg`
 - `07-teste-autonomo.jpg`
 - `08-tabela-testes-preenchida.jpg`
+- `09-central-alerta-agua.jpg`
+- `10-alerta-reconhecido.jpg`
 
 Boas evidências mostram o componente, a ligação e o resultado observável. Não use captura ou foto que exponha senha pessoal, token ou dados privados.

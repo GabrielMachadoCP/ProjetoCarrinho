@@ -13,7 +13,8 @@ flowchart TD
     S --> C["Controle autônomo"]
     C --> L["L298N"]
     L --> R["Motores 2WD"]
-    P --> D["Painel web"]
+    P --> D["Central Web"]
+    D --> A["Alerta ao operador"]
 ```
 
 ## Fluxo de dados
@@ -26,13 +27,14 @@ flowchart TD
 6. A rede neural recebe as três variáveis e retorna as probabilidades de NORMAL, ATENÇÃO e CRÍTICO.
 7. Regras determinísticas tratam falha de sensor, nível extremo e colisão iminente.
 8. O modo autônomo decide avançar, parar ou executar manobra de afastamento.
+9. Ao detectar água, o ESP32 registra a ocorrência e mantém o alerta na Central até o reconhecimento do operador.
 
 ## Modos de operação
 
 | Modo | Objetivo | Comandos |
 |---|---|---|
 | Manual | posicionamento e teste | frente, ré, esquerda, direita e parar |
-| Autônomo | inspeção e reação local | decisões da IA com camada de segurança |
+| Autônomo | patrulha e reação local | decisões da IA, parada e alerta de água |
 
 A troca de modo ocorre no painel servido em `192.168.4.1`.
 

@@ -9,7 +9,7 @@
 | Inferência | estimar classe de risco | MLP TinyML em C++ |
 | Segurança | garantir limites críticos | regras determinísticas |
 | Controle | acionar movimento | GPIOs da L298N |
-| Interface | comandos e telemetria | WebServer local |
+| Central | controle, telemetria e alertas | WebServer local |
 | Persistência | manter calibração | Preferences/NVS |
 | Coleta | formar dataset real | telemetria serial + Python |
 
@@ -18,16 +18,15 @@
 ```mermaid
 stateDiagram-v2
     [*] --> Manual
-    Manual --> Autonomo: ativar IA
-    Autonomo --> Normal: risco normal
-    Autonomo --> Atencao: risco moderado
-    Autonomo --> Critico: risco alto
-    Autonomo --> Falha: sensor inválido
-    Normal --> Avancar
-    Atencao --> Parar
-    Critico --> Afastar
+    Manual --> Patrulha: iniciar modo autônomo
+    Patrulha --> Avancar: normal e livre
+    Patrulha --> Desviar: obstáculo
+    Patrulha --> AlertaAgua: nível maior ou igual a 30%
+    AlertaAgua --> Parar
+    Parar --> Patrulha: reconhecido e seco
+    Patrulha --> Falha: sensor inválido
     Falha --> Parar
-    Autonomo --> Manual: assumir controle
+    Patrulha --> Manual: assumir controle
 ```
 
 ## API local
@@ -38,6 +37,7 @@ stateDiagram-v2
 | GET | `/api/status` | estado e telemetria em JSON |
 | POST | `/mode/manual` | ativar modo manual |
 | POST | `/mode/auto` | ativar modo autônomo |
+| POST | `/alert/ack` | reconhecer o alerta de água |
 | POST | `/move/forward` | avançar no modo manual |
 | POST | `/move/reverse` | recuar no modo manual |
 | POST | `/move/left` | girar à esquerda |
@@ -45,6 +45,19 @@ stateDiagram-v2
 | POST | `/move/stop` | parar |
 | POST | `/calibrate/dry` | salvar referência seca |
 | POST | `/calibrate/wet` | salvar referência molhada |
+
+## Evento de água na Central
+
+O estado retornado por `/api/status` inclui:
+
+- `water_present`: presença atual após histerese;
+- `alert.active`: ocorrência pendente na Central;
+- `alert.acknowledged`: confirmação do operador;
+- `alert.events`: contador de ocorrências desde a inicialização;
+- `alert.last_at_s`: instante do último evento;
+- `alert.last_level`: maior nível observado na ocorrência.
+
+O limiar de entrada é 30% e o de saída é 15%. Essa diferença evita que pequenas oscilações do ADC façam o alerta aparecer e desaparecer repetidamente. A referência molhada usada na calibração é ignorada como ocorrência até o sensor voltar ao seco.
 
 ## Telemetria
 

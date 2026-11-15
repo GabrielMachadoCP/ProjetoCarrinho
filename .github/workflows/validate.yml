@@ -31,5 +31,8 @@ jobs:
           g++ -std=c++17 tests/model_smoke.cpp -o /tmp/drenahub_model_smoke
           /tmp/drenahub_model_smoke
 
+      - name: Validar contrato da Central Web
+        run: python tests/dashboard_contract.py
+
       - name: Compilar firmware ESP32
         run: pio run

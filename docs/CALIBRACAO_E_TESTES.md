@@ -18,8 +18,9 @@ Este documento separa o que pode ser validado por software do que precisa ser ex
 3. Espere pelo menos dois segundos para preencher a média móvel.
 4. Com o sensor seco, registre **SECO**.
 5. Toque a área sensível na condição máxima da maquete e registre **MOLHADO**.
-6. Repita seco e molhado três vezes e confirme estabilidade.
-7. Reinicie o ESP32 e confira se os valores persistiram.
+6. Volte o sensor ao seco; a referência molhada da calibração não será contada como ocorrência.
+7. Repita seco e molhado três vezes e confirme estabilidade.
+8. Reinicie o ESP32 e confira se os valores persistiram.
 
 Registre no quadro:
 
@@ -37,12 +38,14 @@ Registre no quadro:
 | T02 | controle manual | usar todos os botões | movimentos coerentes e parada |  | ⬜ |
 | T03 | obstáculo | aproximar objeto | distância diminui e robô evita |  | ⬜ |
 | T04 | sensor seco | manter área sensível seca | nível próximo de 0% |  | ⬜ |
-| T05 | atenção | aplicar umidade intermediária | classe ATENÇÃO e parada |  | ⬜ |
-| T06 | crítico | tocar referência molhada | classe CRÍTICO e afastamento |  | ⬜ |
+| T05 | água em patrulha | aplicar umidade intermediária | parada e alerta na Central |  | ⬜ |
+| T06 | nível crítico | tocar referência molhada | classe CRÍTICO e robô parado |  | ⬜ |
 | T07 | subida rápida | molhar progressivamente | `rise_rate` aumenta |  | ⬜ |
 | T08 | falha ultrassônica | bloquear/desconectar em bancada | classe FALHA e parada |  | ⬜ |
 | T09 | reinício | desligar e ligar | calibração preservada |  | ⬜ |
 | T10 | autonomia | executar sequência completa | decisão sem comando manual |  | ⬜ |
+| T11 | reconhecimento | clicar em Reconhecer alerta | ocorrência marcada como reconhecida |  | ⬜ |
+| T12 | retomada segura | reconhecer e depois secar sensor | alerta encerra e patrulha continua |  | ⬜ |
 
 Não marque como aprovado sem observar o carrinho.
 
@@ -69,7 +72,8 @@ Depois do retreinamento:
 
 - foto geral do carrinho;
 - close do novo sensor e da ligação no GPIO 34;
-- painel mostrando cada classe;
+- Central mostrando cada classe e o alerta de água;
+- alerta reconhecido e contador de ocorrências;
 - matriz de confusão com dados reais;
 - tabela de testes preenchida;
 - vídeo do funcionamento real.

@@ -9,6 +9,7 @@ Execução realizada em **15/11/2026** antes da publicação.
 | treinamento reproduzível | `python3 tinyml/train_drenahub_model.py` | aprovado |
 | exportação C++ | geração de `drenahub_model.h` | aprovado |
 | inferência isolada | `g++ ... tests/model_smoke.cpp` | aprovado |
+| contrato Central/firmware | `python3 tests/dashboard_contract.py` | aprovado |
 | compilação ESP32 | `pio run` | aprovado |
 
 ## Build ESP32
@@ -16,8 +17,8 @@ Execução realizada em **15/11/2026** antes da publicação.
 - plataforma: `espressif32@6.9.0`;
 - placa: `esp32dev`;
 - framework: Arduino;
-- RAM: 45.476 bytes de 327.680 (**13,9%**);
-- flash: 799.901 bytes de 1.310.720 (**61,0%**);
+- RAM: 45.492 bytes de 327.680 (**13,9%**);
+- flash: 806.609 bytes de 1.310.720 (**61,5%**);
 - saída: `SUCCESS`.
 
 ## Baseline TinyML
