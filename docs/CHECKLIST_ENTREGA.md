@@ -18,7 +18,7 @@ Legenda: ✅ pronto no repositório · 🟨 depende do carrinho/grupo · ⬜ fal
 | Instruções para instalar e executar | README principal | ✅ |
 | Lista de componentes | `hardware/componentes.md` | ✅ |
 | Integração sensor + IA documentada | arquitetura, firmware e TinyML | ✅ |
-| Central Web com alerta de água | painel embarcado, contador e confirmação da obstrução | ✅ software / 🟨 demonstrar no carrinho |
+| Central Web com alerta de água | painel embarcado, contador e reconhecimento | ✅ software / 🟨 demonstrar no carrinho |
 | Vídeo de demonstração com no máximo 6 minutos | roteiro pronto; link ainda vazio | 🟨 gravar |
 | Repositório GitHub acessível | repositório público; validar em janela anônima | ✅ |
 | Nomes dos integrantes no README | nomes e RMs no topo | ✅ |
@@ -34,7 +34,7 @@ Legenda: ✅ pronto no repositório · 🟨 depende do carrinho/grupo · ⬜ fal
 | Robô funcionando | controle e modo autônomo no piso | 🟨 |
 | Novo sensor | close da montagem e leitura mudando | 🟨 |
 | Integração com IA | probabilidades e classe na Central | 🟨 |
-| Alerta de água | mostrar parada, aviso e confirmação da obstrução | 🟨 |
+| Alerta de água | mostrar parada, aviso e reconhecimento | 🟨 |
 | Principais funções | manual, patrulha, calibração, detecção e reação | 🟨 |
 | Duração máxima de 6 min | seguir roteiro de 5min50s | 🟨 |
 | Link no GitHub ou YouTube | colar no README | 🟨 |
@@ -59,7 +59,7 @@ Legenda: ✅ pronto no repositório · 🟨 depende do carrinho/grupo · ⬜ fal
 - [ ] Fazer as três ligações do novo sensor.
 - [ ] Compilar e gravar o firmware no ESP32.
 - [ ] Calibrar seco e molhado na Central.
-- [ ] Testar a parada, o alerta e o botão de confirmação da obstrução.
+- [ ] Testar a parada, o alerta e o botão de reconhecimento.
 - [ ] Executar os testes T01–T12.
 - [ ] Tirar fotos das ligações e do protótipo final.
 - [ ] Coletar dados reais das três classes.

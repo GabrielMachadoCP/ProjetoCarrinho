@@ -44,12 +44,10 @@ Registre no quadro:
 | T08 | falha ultrassônica | bloquear/desconectar em bancada | classe FALHA e parada |  | ⬜ |
 | T09 | reinício | desligar e ligar | calibração preservada |  | ⬜ |
 | T10 | autonomia | executar sequência completa | decisão sem comando manual |  | ⬜ |
-| T11 | confirmação | clicar em Confirmar drenagem obstruída | alerta fecha e patrulha retoma imediatamente |  | ⬜ |
-| T12 | retomada da patrulha | retirar o sensor da água | carrinho volta a andar abaixo de 15% |  | ⬜ |
+| T11 | reconhecimento | clicar em Reconhecer alerta | ocorrência marcada como reconhecida |  | ⬜ |
+| T12 | retomada da patrulha | retirar o sensor da água | carrinho volta a andar abaixo de 30% |  | ⬜ |
 | T13 | confirmação | iniciar modo autônomo e cancelar/confirmar | cancelar não move; confirmar inicia imediatamente |  | ⬜ |
 | T14 | emergência | acionar parada durante a patrulha | motores param e modo volta para manual |  | ⬜ |
-| T15 | nova água com sensor úmido | confirmar T11 e elevar a leitura em pelo menos 12 pontos | nova ocorrência e nova parada |  | ⬜ |
-| T16 | sensor saturado | manter leitura em 95% ou mais após T11 | Central solicita secagem do sensor |  | ⬜ |
 
 Não marque como aprovado sem observar o carrinho.
 
@@ -77,7 +75,7 @@ Depois do retreinamento:
 - foto geral do carrinho;
 - close do novo sensor e da ligação no GPIO 34;
 - Central mostrando cada classe e o alerta de água;
-- obstrução confirmada e contador de ocorrências;
+- alerta reconhecido e contador de ocorrências;
 - matriz de confusão com dados reais;
 - tabela de testes preenchida;
 - vídeo do funcionamento real.

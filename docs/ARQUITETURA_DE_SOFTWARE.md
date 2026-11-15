@@ -23,10 +23,7 @@ stateDiagram-v2
     Patrulha --> Desviar: obstáculo
     Patrulha --> AlertaAgua: nível maior ou igual a 30%
     AlertaAgua --> Parar
-    Parar --> UmidadeResidual: confirmar drenagem obstruída
-    UmidadeResidual --> Patrulha: liberar movimento
-    UmidadeResidual --> AlertaAgua: nova subida maior ou igual a 12 pontos
-    Parar --> Patrulha: leitura abaixo de 15%
+    Parar --> Patrulha: leitura abaixo de 30%
     Patrulha --> Falha: sensor inválido
     Falha --> Parar
     Patrulha --> Manual: assumir controle
@@ -42,7 +39,7 @@ stateDiagram-v2
 | POST | `/mode/manual` | ativar modo manual |
 | POST | `/mode/auto` | atualizar sensores, ativar e iniciar o modo autônomo |
 | POST | `/emergency-stop` | cancelar a patrulha e parar imediatamente |
-| POST | `/alert/ack` | confirmar obstrução, fechar alerta e liberar a patrulha |
+| POST | `/alert/ack` | reconhecer o alerta de água |
 | POST | `/move/forward` | avançar no modo manual |
 | POST | `/move/reverse` | recuar no modo manual |
 | POST | `/move/left` | girar à esquerda |
@@ -63,8 +60,6 @@ O estado retornado por `/api/status` inclui:
 - `alert.last_level`: maior nível observado na ocorrência.
 
 O limiar de entrada é 30% e o de saída é 15%. Essa diferença evita que pequenas oscilações do ADC façam o alerta aparecer e desaparecer repetidamente. A referência molhada usada na calibração é ignorada como ocorrência até o sensor voltar ao seco.
-
-Quando o operador confirma a drenagem obstruída, a leitura atual vira uma referência residual. O bloqueio dos motores é removido imediatamente e uma nova ocorrência só aparece se a leitura subir pelo menos 12 pontos percentuais sobre o menor nível observado desde a confirmação. Acima de 95%, a interface sinaliza saturação e recomenda secar o sensor.
 
 ## Telemetria
 
