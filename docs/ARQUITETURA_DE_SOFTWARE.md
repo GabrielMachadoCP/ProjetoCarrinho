@@ -18,7 +18,7 @@
 ```mermaid
 stateDiagram-v2
     [*] --> Manual
-    Manual --> Patrulha: iniciar modo autônomo
+    Manual --> Patrulha: confirmar modo autônomo
     Patrulha --> Avancar: normal e livre
     Patrulha --> Desviar: obstáculo
     Patrulha --> AlertaAgua: nível maior ou igual a 30%
@@ -27,6 +27,7 @@ stateDiagram-v2
     Patrulha --> Falha: sensor inválido
     Falha --> Parar
     Patrulha --> Manual: assumir controle
+    Patrulha --> Manual: parada de emergência
 ```
 
 ## API local
@@ -36,13 +37,14 @@ stateDiagram-v2
 | GET | `/` | painel web |
 | GET | `/api/status` | estado e telemetria em JSON |
 | POST | `/mode/manual` | ativar modo manual |
-| POST | `/mode/auto` | ativar modo autônomo |
+| POST | `/mode/auto` | atualizar sensores, ativar e iniciar o modo autônomo |
+| POST | `/emergency-stop` | cancelar a patrulha e parar imediatamente |
 | POST | `/alert/ack` | reconhecer o alerta de água |
 | POST | `/move/forward` | avançar no modo manual |
 | POST | `/move/reverse` | recuar no modo manual |
 | POST | `/move/left` | girar à esquerda |
 | POST | `/move/right` | girar à direita |
-| POST | `/move/stop` | parar |
+| POST | `/move/stop` | parar e voltar ao modo manual |
 | POST | `/calibrate/dry` | salvar referência seca |
 | POST | `/calibrate/wet` | salvar referência molhada |
 
@@ -75,5 +77,7 @@ O coletor converte as variáveis em CSV rotulado. A classificação real é info
 - Inferência local mantém o funcionamento sem internet.
 - O cabeçalho gerado evita dependências externas no ESP32.
 - A IA classifica e informa o risco à Central; água, distância e falhas acionam as respostas físicas de forma previsível.
+- A lógica de movimento é direta: seco e acima de 15 cm avança; obstáculo a até 15 cm recua e vira; água ou falha para.
+- A rota de início executa a primeira decisão imediatamente, sem depender do ciclo seguinte do `loop()`.
 - A camada de segurança tem prioridade sobre a rede neural.
 - A calibração persistente absorve variações entre unidades do sensor.

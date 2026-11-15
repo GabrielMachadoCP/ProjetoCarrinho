@@ -27,6 +27,8 @@ sequenceDiagram
 - conexão do robô;
 - modo manual ou patrulha autônoma;
 - ação atual;
+- confirmação antes do início da patrulha;
+- parada de emergência sempre disponível;
 - nível de água e valor ADC;
 - distância frontal;
 - classe e confiança TinyML;
@@ -44,6 +46,8 @@ sequenceDiagram
 5. O reconhecimento serve para encerrar o aviso na Central e não bloqueia os motores.
 6. A histerese de 15% é usada apenas para estabilizar o estado visual do alerta.
 7. A condição molhada usada na calibração não conta como ocorrência.
+8. A confirmação do modo autônomo força uma leitura atual dos sensores e já executa a primeira ação.
+9. A parada de emergência muda o robô para manual e desliga os quatro sinais da ponte H.
 
 ## Limite do protótipo
 

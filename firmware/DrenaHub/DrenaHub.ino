@@ -100,7 +100,9 @@ unsigned long lastSerialLog = 0;
 constexpr unsigned long SENSOR_INTERVAL_MS = 200;
 constexpr float WATER_DETECTION_THRESHOLD = 0.30f;
 constexpr float WATER_CLEAR_THRESHOLD = 0.15f;
-constexpr float OBSTACLE_AVOID_DISTANCE_CM = 25.0f;
+// 15 cm mantém o desvio simples sem confundir paredes ou objetos distantes
+// com um bloqueio imediato da patrulha.
+constexpr float OBSTACLE_AVOID_DISTANCE_CM = 15.0f;
 
 // ----------------------------------------------------------------------
 // PAGINA WEB EMBARCADA
@@ -120,10 +122,10 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(
     main{max-width:980px;margin:auto;padding:18px}.card{background:var(--card);border-radius:14px;padding:16px;box-shadow:0 4px 14px #17304212}.section{margin-top:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:13px}.label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.value{font-size:26px;font-weight:700;margin-top:6px}.note{font-size:13px;color:var(--muted);line-height:1.45}.small{font-size:14px;font-weight:600}.statusline{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.risk{display:inline-block;padding:8px 13px;border-radius:999px;color:#fff;font-weight:bold}.NORMAL{background:var(--green)}.ATENCAO{background:var(--yellow)}.CRITICO,.FALHA{background:var(--red)}
     .alert-panel{display:none;border:2px solid var(--red);background:var(--softred);border-radius:15px;padding:17px;grid-template-columns:1fr auto;gap:12px;align-items:center}.alert-panel.show{display:grid}.alert-panel.ack{border-color:var(--yellow);background:#fff8e8}.alert-title{color:var(--red);font-size:20px;font-weight:800;margin-bottom:5px}.alert-panel.ack .alert-title{color:#a36909}.alert-button{border:0;background:var(--red);color:#fff;border-radius:10px;padding:13px 16px;font-weight:bold;cursor:pointer}.alert-button:disabled{background:#9a9a9a;cursor:default}
     .bar{height:12px;background:#dae5ea;border-radius:8px;overflow:hidden;margin-top:10px}.fill{height:100%;width:0;background:var(--cyan);transition:.3s}.water-found{color:var(--red)}
-    .patrol{display:grid;grid-template-columns:1fr 1fr;gap:10px}.action{border:0;border-radius:11px;background:var(--navy);color:#fff;min-height:46px;padding:0 14px;font-size:14px;font-weight:bold;cursor:pointer}.action.auto{background:var(--green)}.action.cal{background:var(--blue);margin:4px}.action.secondary{background:#61727d}
+    .patrol{display:grid;grid-template-columns:1fr 1fr;gap:10px}.action{border:0;border-radius:11px;background:var(--navy);color:#fff;min-height:48px;padding:0 14px;font-size:14px;font-weight:bold;cursor:pointer;transition:transform .08s,opacity .2s}.action:active,.controls button:active{transform:scale(.98)}.action:disabled,.controls button:disabled{opacity:.45;cursor:not-allowed}.action.auto{background:var(--green)}.action.emergency{background:var(--red);grid-column:1/-1;min-height:56px;font-size:16px}.action.cal{background:var(--blue);margin:4px}.action.secondary{background:#61727d}.safety-note{margin:12px 0 0;padding:10px 12px;background:#f3f7f9;border-radius:10px;color:var(--muted);font-size:13px;line-height:1.4}
     .controls{display:grid;grid-template-columns:repeat(3,82px);gap:8px;justify-content:center;margin-top:13px}.controls button{border:0;border-radius:11px;background:var(--navy);color:#fff;min-height:58px;font-size:20px;font-weight:bold;cursor:pointer}.controls .stop{background:var(--red)}
     .eventbox{border-left:4px solid var(--cyan);padding-left:12px;margin-top:10px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
-    @media(max-width:600px){.head{align-items:flex-start}.connection{font-size:0}.connection .dot{margin:0}.patrol{grid-template-columns:1fr}.alert-panel{grid-template-columns:1fr}.alert-button{width:100%}}
+    @media(max-width:600px){header{padding:17px 14px}.head{align-items:flex-start}.head h1{font-size:23px}.connection{font-size:0}.connection .dot{margin:0}main{padding:12px}.patrol{grid-template-columns:1fr}.action.emergency{grid-column:auto}.alert-panel{grid-template-columns:1fr}.alert-button{width:100%}}
   </style>
 </head>
 <body>
@@ -149,6 +151,17 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(
       <span id="action" class="small">Ação: PARADO</span>
     </div>
 
+    <div class="card section">
+      <div class="label">Comando da patrulha</div>
+      <p id="modeHint" class="note">O carrinho está parado e aguarda um comando.</p>
+      <div class="patrol">
+        <button id="autoButton" class="action auto" onclick="confirmAutonomous()">INICIAR MODO AUTÔNOMO</button>
+        <button id="manualButton" class="action secondary" onclick="command('/mode/manual')">ASSUMIR CONTROLE MANUAL</button>
+        <button class="action emergency" onclick="emergencyStop()">■ PARADA DE EMERGÊNCIA</button>
+      </div>
+      <div class="safety-note">No modo autônomo: caminho livre = avança · obstáculo a até 15 cm = recua e vira · água = para e alerta.</div>
+    </div>
+
     <div class="grid section">
       <div class="card">
         <div class="label">Sensor de água</div>
@@ -163,19 +176,10 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(
     </div>
 
     <div class="card section">
-      <div class="label">Patrulha do DrenaBot</div>
-      <p class="note">No modo autônomo, o carrinho avança, evita obstáculos e para ao encontrar água. A Central mantém o alerta visível até o operador reconhecê-lo.</p>
-      <div class="patrol">
-        <button class="action auto" onclick="command('/mode/auto')">INICIAR PATRULHA AUTÔNOMA</button>
-        <button class="action secondary" onclick="command('/mode/manual')">ASSUMIR CONTROLE MANUAL</button>
-      </div>
-    </div>
-
-    <div class="card section">
       <div class="label">Movimentação manual</div>
       <div class="controls">
         <span></span><button data-hold="/move/forward">↑</button><span></span>
-        <button data-hold="/move/left">←</button><button class="stop" onclick="command('/move/stop')">■</button><button data-hold="/move/right">→</button>
+        <button data-hold="/move/left">←</button><button class="stop" onclick="emergencyStop()">■</button><button data-hold="/move/right">→</button>
         <span></span><button data-hold="/move/reverse">↓</button><span></span>
       </div>
     </div>
@@ -197,10 +201,21 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(
   <script>
     let seenWaterEvents = -1;
     async function command(path){
-      const response=await fetch(path,{method:'POST'});
-      if(!response.ok){alert(await response.text())}
-      await update();
+      try{
+        const response=await fetch(path,{method:'POST',cache:'no-store'});
+        if(!response.ok){alert(await response.text());return false}
+        await update();
+        return true;
+      }catch(error){
+        alert('Não foi possível enviar o comando ao carrinho. Verifique a conexão com a rede DrenaHub-DrenaBot.');
+        return false;
+      }
     }
+    async function confirmAutonomous(){
+      const confirmed=confirm('CONFIRMAR MODO AUTÔNOMO\n\nO carrinho começará a andar imediatamente quando o caminho estiver livre e seco. Deixe espaço à frente e mantenha acesso à parada de emergência.');
+      if(confirmed){await command('/mode/auto')}
+    }
+    async function emergencyStop(){await command('/emergency-stop')}
     async function calibrate(path,message){if(confirm(message)){await command(path)}}
     document.querySelectorAll('[data-hold]').forEach(btn=>{
       const start=e=>{e.preventDefault();command(btn.dataset.hold)};
@@ -216,6 +231,13 @@ const char PAGE_HTML[] PROGMEM = R"rawliteral(
         const risk=document.getElementById('risk');risk.textContent=d.risk;risk.className='risk '+d.risk;
         document.getElementById('mode').textContent=d.mode==='autonomo'?'Patrulha autônoma':'Patrulha manual';
         document.getElementById('action').textContent='Ação: '+d.action;
+        const autonomous=d.mode==='autonomo';
+        const autoButton=document.getElementById('autoButton');
+        autoButton.disabled=autonomous;
+        autoButton.textContent=autonomous?'MODO AUTÔNOMO ATIVO':'INICIAR MODO AUTÔNOMO';
+        document.getElementById('manualButton').disabled=!autonomous;
+        document.getElementById('modeHint').textContent=autonomous?'Patrulha ativa. Use a parada de emergência para interromper imediatamente.':'Controle manual ativo. Confirme o modo autônomo para iniciar a patrulha.';
+        document.querySelectorAll('[data-hold]').forEach(button=>button.disabled=autonomous);
 
         const waterPercent=Math.round(d.water_level*100);
         const state=document.getElementById('waterState');
@@ -409,8 +431,8 @@ float calculateObstacleRisk(float distance) {
   return clamp01((50.0f - distance) / 50.0f);
 }
 
-void updateSensorsAndInference() {
-  if (millis() - lastSensorUpdate < SENSOR_INTERVAL_MS) return;
+void updateSensorsAndInference(bool forceUpdate = false) {
+  if (!forceUpdate && millis() - lastSensorUpdate < SENSOR_INTERVAL_MS) return;
   lastSensorUpdate = millis();
 
   waterRaw = analogRead(WATER_SENSOR_PIN);
@@ -538,6 +560,9 @@ String statusJson() {
 
 void configureWebServer() {
   server.on("/", HTTP_GET, []() {
+    server.sendHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    server.sendHeader("Pragma", "no-cache");
+    server.sendHeader("Expires", "0");
     server.send_P(200, "text/html; charset=utf-8", PAGE_HTML);
   });
 
@@ -555,9 +580,20 @@ void configureWebServer() {
 
   server.on("/mode/auto", HTTP_POST, []() {
     operatingMode = MODE_AUTONOMOUS;
-    stopMotors();
-    setEvent("Patrulha autonoma TinyML iniciada");
+    setEvent("Modo autonomo confirmado pelo operador");
+
+    // Não espera o próximo loop: lê os sensores e aciona os motores dentro
+    // da própria requisição que confirmou o modo autônomo.
+    updateSensorsAndInference(true);
+    runAutonomousMode();
     sendOk("AUTONOMO");
+  });
+
+  server.on("/emergency-stop", HTTP_POST, []() {
+    operatingMode = MODE_MANUAL;
+    stopMotors();
+    setEvent("Parada de emergencia acionada");
+    sendOk("PARADA_DE_EMERGENCIA");
   });
 
   server.on("/alert/ack", HTTP_POST, []() {
@@ -575,7 +611,13 @@ void configureWebServer() {
   server.on("/move/reverse", HTTP_POST, []() { requireManual(moveReverse); });
   server.on("/move/left", HTTP_POST, []() { requireManual(turnLeft); });
   server.on("/move/right", HTTP_POST, []() { requireManual(turnRight); });
-  server.on("/move/stop", HTTP_POST, []() { stopMotors(); sendOk(); });
+  server.on("/move/stop", HTTP_POST, []() {
+    // Um comando de parada sempre cancela a patrulha, evitando que o loop
+    // autônomo volte a ligar os motores logo em seguida.
+    operatingMode = MODE_MANUAL;
+    stopMotors();
+    sendOk("PARADO");
+  });
 
   server.on("/calibrate/dry", HTTP_POST, []() {
     stopMotors();

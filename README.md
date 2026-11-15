@@ -86,7 +86,8 @@ Veja o guia completo em [hardware/ligacoes_drenahub.md](hardware/ligacoes_drenah
 A página embarcada no ESP32 representa, de forma simples, a central do futuro aplicativo. Ela reúne:
 
 - conexão e modo atual do DrenaBot;
-- botão para iniciar a patrulha autônoma;
+- confirmação antes de iniciar a patrulha autônoma;
+- parada de emergência que cancela a patrulha imediatamente;
 - movimentação manual;
 - nível de água, distância e probabilidades da IA;
 - quantidade de ocorrências encontradas;
@@ -112,6 +113,8 @@ Antes da apresentação, o grupo deve coletar amostras físicas nas três classe
 
 O TinyML classifica o contexto e apresenta as probabilidades na Central. Para manter a evolução do carrinho simples e previsível, a atuação usa condições físicas objetivas: caminho livre faz o robô avançar, obstáculo provoca desvio, água provoca parada e falha de sensor provoca parada segura. Assim, uma oscilação isolada da classe `ATENÇÃO` não bloqueia a patrulha.
 
+Ao confirmar o modo autônomo, o ESP32 força uma nova leitura dos sensores e executa a primeira decisão de movimento dentro da própria requisição. Não é necessário aguardar outro comando da Central. O desvio é disparado somente quando o obstáculo está a **15 cm ou menos**.
+
 ## Comportamento autônomo
 
 | Situação | Resposta do DrenaBot |
@@ -125,6 +128,7 @@ O TinyML classifica o contexto e apresenta as probabilidades na Central. Para ma
 | CRÍTICO por obstáculo | executa manobra de afastamento |
 | Obstáculo próximo | executa desvio |
 | Falha de sensor | para em modo seguro |
+| Parada de emergência | cancela o modo autônomo e mantém os motores parados |
 
 ## Como executar
 
@@ -159,7 +163,7 @@ O código usa somente bibliotecas que já acompanham o core ESP32: `WiFi`, `WebS
 3. Com o sensor limpo e seco, clique em **Registrar seco**.
 4. Encoste apenas a área sensível em uma esponja úmida ou bandeja rasa e clique em **Registrar molhado**.
 5. Volte o sensor ao seco e espere o painel indicar **SECO**.
-6. Clique em **Iniciar patrulha autônoma**.
+6. Clique em **Iniciar modo autônomo** e confirme o aviso de segurança.
 7. Encoste o sensor na referência de água e confirme a parada e o alerta destacado.
 8. Clique em **Reconhecer alerta**, seque o sensor e observe o encerramento da ocorrência.
 

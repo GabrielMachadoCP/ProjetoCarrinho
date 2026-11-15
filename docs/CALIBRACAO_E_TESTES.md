@@ -46,6 +46,8 @@ Registre no quadro:
 | T10 | autonomia | executar sequência completa | decisão sem comando manual |  | ⬜ |
 | T11 | reconhecimento | clicar em Reconhecer alerta | ocorrência marcada como reconhecida |  | ⬜ |
 | T12 | retomada da patrulha | retirar o sensor da água | carrinho volta a andar abaixo de 30% |  | ⬜ |
+| T13 | confirmação | iniciar modo autônomo e cancelar/confirmar | cancelar não move; confirmar inicia imediatamente |  | ⬜ |
+| T14 | emergência | acionar parada durante a patrulha | motores param e modo volta para manual |  | ⬜ |
 
 Não marque como aprovado sem observar o carrinho.
 
