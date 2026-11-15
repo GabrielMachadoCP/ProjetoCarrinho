@@ -23,7 +23,7 @@ stateDiagram-v2
     Patrulha --> Desviar: obstáculo
     Patrulha --> AlertaAgua: nível maior ou igual a 30%
     AlertaAgua --> Parar
-    Parar --> Patrulha: reconhecido e seco
+    Parar --> Patrulha: leitura abaixo de 30%
     Patrulha --> Falha: sensor inválido
     Falha --> Parar
     Patrulha --> Manual: assumir controle

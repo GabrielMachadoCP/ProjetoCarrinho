@@ -95,11 +95,9 @@ float lastWaterEventLevel = 0.0f;
 String currentAction = "PARADO";
 String lastEvent = "Sistema iniciado";
 unsigned long lastSensorUpdate = 0;
-unsigned long lastAutonomousManeuver = 0;
 unsigned long lastSerialLog = 0;
 
 constexpr unsigned long SENSOR_INTERVAL_MS = 200;
-constexpr unsigned long MANEUVER_COOLDOWN_MS = 4500;
 constexpr float WATER_DETECTION_THRESHOLD = 0.30f;
 constexpr float WATER_CLEAR_THRESHOLD = 0.15f;
 constexpr float OBSTACLE_AVOID_DISTANCE_CM = 25.0f;
@@ -457,50 +455,29 @@ void updateSensorsAndInference() {
 // DECISAO AUTONOMA
 // ----------------------------------------------------------------------
 void executeEscapeManeuver(const String& reason) {
-  if (lastAutonomousManeuver != 0 &&
-      millis() - lastAutonomousManeuver < MANEUVER_COOLDOWN_MS) {
-    stopMotors();
-    return;
-  }
-  lastAutonomousManeuver = millis();
-
   stopMotors();
   beep(180);
   delay(150);
   moveReverse();
-  delay(380);
+  delay(450);
   turnRight();
-  delay(420);
+  delay(450);
   stopMotors();
   setEvent(reason);
 }
 
 void runAutonomousMode() {
-  if (!waterWindowReady) {
+  // Mantem o comportamento do carrinho original: com leitura valida ele
+  // sempre avanca ou desvia. O unico bloqueio novo e agua presente agora.
+  if (waterLevel >= WATER_DETECTION_THRESHOLD) {
     stopMotors();
-    currentAction = "CALIBRANDO LEITURAS";
+    currentAction = "AGUA DETECTADA - PARADO";
     return;
   }
 
-  if (suppressWaterAlertUntilDry && waterPresent) {
+  if (distanceCm < 0.0f) {
     stopMotors();
-    currentAction = "AGUARDANDO SENSOR SECAR";
-    return;
-  }
-
-  if (waterAlertActive) {
-    stopMotors();
-    currentAction = waterPresent
-        ? "AGUA DETECTADA - PARADO"
-        : "AGUARDANDO RECONHECIMENTO";
-    return;
-  }
-
-  // Patrulha simples e previsivel: a IA continua classificando o risco para
-  // a Central, enquanto as condicoes fisicas acionam as reacoes do carrinho.
-  if (distanceCm < 0.0f || waterRaw >= 4090) {
-    stopMotors();
-    currentAction = "FALHA DE SENSOR";
+    currentAction = "FALHA NO HC-SR04";
     return;
   }
 

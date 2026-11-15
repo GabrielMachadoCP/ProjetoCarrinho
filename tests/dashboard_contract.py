@@ -13,7 +13,7 @@ REQUIRED_TOKENS = {
     "rota de reconhecimento": 'server.on("/alert/ack"',
     "presença de água na API": 'water_present',
     "objeto de alerta na API": 'json += "\\\"alert\\\":{"',
-    "parada autônoma": 'currentAction = waterPresent',
+    "parada autônoma por água": "waterLevel >= WATER_DETECTION_THRESHOLD",
     "avanço em caminho livre": "moveForward();",
     "desvio por distância": "distanceCm <= OBSTACLE_AVOID_DISTANCE_CM",
     "limiar de detecção": "WATER_DETECTION_THRESHOLD = 0.30f",
@@ -23,5 +23,18 @@ REQUIRED_TOKENS = {
 missing = [name for name, token in REQUIRED_TOKENS.items() if token not in SOURCE]
 if missing:
     raise SystemExit("Contrato incompleto: " + ", ".join(missing))
+
+autonomous = SOURCE.split("void runAutonomousMode()", 1)[1].split(
+    "// API E ROTAS WEB", 1
+)[0]
+unexpected_gates = [
+    token
+    for token in ("waterAlertActive", "suppressWaterAlertUntilDry", "currentRisk")
+    if token in autonomous
+]
+if unexpected_gates:
+    raise SystemExit(
+        "Patrulha contém bloqueios extras: " + ", ".join(unexpected_gates)
+    )
 
 print("Contrato firmware/Central: OK")

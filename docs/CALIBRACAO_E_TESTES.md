@@ -45,7 +45,7 @@ Registre no quadro:
 | T09 | reinício | desligar e ligar | calibração preservada |  | ⬜ |
 | T10 | autonomia | executar sequência completa | decisão sem comando manual |  | ⬜ |
 | T11 | reconhecimento | clicar em Reconhecer alerta | ocorrência marcada como reconhecida |  | ⬜ |
-| T12 | retomada segura | reconhecer e depois secar sensor | alerta encerra e patrulha continua |  | ⬜ |
+| T12 | retomada da patrulha | retirar o sensor da água | carrinho volta a andar abaixo de 30% |  | ⬜ |
 
 Não marque como aprovado sem observar o carrinho.
 

@@ -94,7 +94,7 @@ A página embarcada no ESP32 representa, de forma simples, a central do futuro a
 - botão **Reconhecer alerta**;
 - calibração seca e molhada.
 
-Ao cruzar 30% do nível calibrado, o evento fica registrado na Central e o robô para. Uma histerese considera o ponto seco novamente abaixo de 15%, evitando alertas oscilando perto do limite. A patrulha só prossegue depois que a ocorrência for reconhecida e o sensor voltar ao seco.
+Ao cruzar 30% do nível calibrado, o evento fica registrado na Central e o robô para. Assim que a leitura atual volta para menos de 30%, o carrinho pode continuar a patrulha. O aviso permanece visível separadamente até o operador reconhecê-lo.
 
 O fluxo completo está em [docs/CENTRAL_DRENAHUB.md](docs/CENTRAL_DRENAHUB.md).
 
@@ -118,9 +118,9 @@ O TinyML classifica o contexto e apresenta as probabilidades na Central. Para ma
 |---|---|
 | NORMAL e caminho livre | avança |
 | Água detectada | para e abre alerta na Central |
-| Alerta não reconhecido | permanece parado |
-| Alerta reconhecido, mas sensor molhado | permanece parado |
-| Alerta reconhecido e sensor seco | encerra ocorrência e retoma a patrulha |
+| Sensor ainda com água | permanece parado |
+| Sensor abaixo de 30% | retoma a patrulha, mesmo se o aviso ainda estiver pendente |
+| Operador reconhece o alerta | encerra o aviso na Central quando o ponto estiver seco |
 | ATENÇÃO da IA, mas caminho seco e livre | continua a patrulha e informa a classe na Central |
 | CRÍTICO por obstáculo | executa manobra de afastamento |
 | Obstáculo próximo | executa desvio |

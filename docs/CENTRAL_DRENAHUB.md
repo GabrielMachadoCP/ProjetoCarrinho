@@ -16,11 +16,10 @@ sequenceDiagram
     E->>R: parar patrulha
     E->>C: água + nível + ocorrência
     C-->>O: alerta visual (e vibração, se suportada)
+    R->>E: nível abaixo de 30%
+    E->>R: retomar patrulha
     O->>C: reconhecer alerta
     C->>E: POST /alert/ack
-    E->>R: aguardar sensor seco
-    R->>E: nível abaixo de 15%
-    E->>R: retomar patrulha
 ```
 
 ## Informações apresentadas
@@ -40,10 +39,11 @@ sequenceDiagram
 
 1. A água é detectada a partir de 30% do intervalo calibrado.
 2. O alerta fica registrado mesmo que a leitura diminua.
-3. O operador precisa reconhecer a ocorrência.
-4. O ponto só é considerado seco abaixo de 15%.
-5. A patrulha retoma quando o alerta foi reconhecido e o sensor está seco.
-6. A condição molhada usada na calibração não conta como ocorrência.
+3. A atuação dos motores para somente enquanto a leitura atual está em 30% ou mais.
+4. A patrulha retoma quando a leitura atual fica abaixo de 30%.
+5. O reconhecimento serve para encerrar o aviso na Central e não bloqueia os motores.
+6. A histerese de 15% é usada apenas para estabilizar o estado visual do alerta.
+7. A condição molhada usada na calibração não conta como ocorrência.
 
 ## Limite do protótipo
 
