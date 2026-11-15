@@ -1,0 +1,8 @@
+.pio/
+.vscode/
+__pycache__/
+.pytest_cache/
+*.pyc
+.DS_Store
+build/
+dist/

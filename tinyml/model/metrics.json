@@ -1,0 +1,59 @@
+{
+  "dataset": "synthetic_baseline",
+  "seed": 42,
+  "samples_total": 3600,
+  "samples_train": 2700,
+  "samples_test": 900,
+  "accuracy": 0.9966666666666667,
+  "confusion_matrix": [
+    [
+      224,
+      0,
+      0
+    ],
+    [
+      1,
+      394,
+      0
+    ],
+    [
+      0,
+      2,
+      279
+    ]
+  ],
+  "classification_report": {
+    "NORMAL": {
+      "precision": 0.9955555555555555,
+      "recall": 1.0,
+      "f1-score": 0.9977728285077951,
+      "support": 224.0
+    },
+    "ATENCAO": {
+      "precision": 0.9949494949494949,
+      "recall": 0.9974683544303797,
+      "f1-score": 0.9962073324905183,
+      "support": 395.0
+    },
+    "CRITICO": {
+      "precision": 1.0,
+      "recall": 0.9928825622775801,
+      "f1-score": 0.9964285714285714,
+      "support": 281.0
+    },
+    "accuracy": 0.9966666666666667,
+    "macro avg": {
+      "precision": 0.9968350168350169,
+      "recall": 0.9967836389026532,
+      "f1-score": 0.9968029108089617,
+      "support": 900.0
+    },
+    "weighted avg": {
+      "precision": 0.99667721661055,
+      "recall": 0.9966666666666667,
+      "f1-score": 0.9966660427676993,
+      "support": 900.0
+    }
+  },
+  "warning": "Baseline sintetico; validar e retreinar com leituras reais antes da entrega."
+}

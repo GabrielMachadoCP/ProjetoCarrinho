@@ -1,256 +1,209 @@
-# 🤖 Carrinho Robô 2WD com ESP32 + TinyML
+# DrenaHub — DrenaBot 01
 
-Projeto de um **carrinho robótico 2WD controlado por Wi-Fi**, desenvolvido com **ESP32 ESP-WROOM-32 DevKit V1**, ponte H L298N, dois motores DC, sensor ultrassônico HC-SR04 e um modelo **TinyML treinado no Edge Impulse**.
+> Robô móvel para inspeção preventiva de pontos com acúmulo de água, desenvolvido para a Global Solution **CitizenTech** da disciplina **Project-Based Maker Lab** — FIAP 4ESPY.
 
-A versão final utiliza **duas rodas motorizadas e uma roda boba**. O ESP32 é o único microcontrolador do sistema, cria a rede Wi-Fi utilizada pelo celular, hospeda a interface web e executa localmente o modelo de classificação.
+## Integrantes
 
-## 👥 Integrantes do Grupo
+| Nome | RM |
+|---|---:|
+| Gabriel Machado Carrara Pimentel | 99880 |
+| Lourenzo Ramos | 99951 |
+| Vitor Hugo Rodrigues | 97758 |
 
-- **Gabriel Machado** — RM 99880
-- **Lourenzo Ramos** — RM 99951
-- **Vitor Hugo Rodrigues** — RM 97758
+## O projeto
 
----
+O **DrenaHub** é uma proposta de monitoramento preventivo de drenagem para condomínios, galpões, estacionamentos, centros logísticos e outras áreas privadas ou públicas. O primeiro dispositivo do ecossistema, o **DrenaBot 01**, evolui o carrinho inteligente desenvolvido nas etapas anteriores: ele percorre uma área, mede a presença de água e identifica obstáculos, classifica o risco localmente com TinyML e reage sem depender de internet.
 
-## 🎯 Objetivo do Projeto
+O recorte do MVP é intencionalmente simples e demonstrável:
 
-Desenvolver um carrinho robótico capaz de:
+1. detectar água em um ponto de inspeção;
+2. combinar nível, tendência de subida e risco de obstáculo;
+3. classificar a situação como **NORMAL**, **ATENÇÃO** ou **CRÍTICO**;
+4. parar ou se afastar quando houver risco;
+5. exibir telemetria e permitir controle manual por um painel web local.
 
-- Movimentar-se para frente e para trás;
-- Realizar curvas para esquerda e direita;
-- Parar remotamente;
-- Ser controlado por um celular conectado diretamente ao Wi-Fi criado pelo ESP32;
-- Controlar dois motores DC por meio de uma ponte H L298N;
-- Utilizar o HC-SR04 para medir a distância de obstáculos;
-- Pré-processar as leituras com média móvel e normalização;
-- Executar um modelo TinyML diretamente no ESP32;
-- Classificar a situação à frente como **Livre, Atenção ou Obstáculo**;
-- Alternar entre **Modo Manual** e **Modo Autônomo TinyML**;
-- Operar sem conexão com um computador após a gravação do firmware.
+O mesmo núcleo pode evoluir para sensores fixos, rotas maiores, histórico em nuvem, alertas e manutenção preditiva — sem limitar a solução a um único tipo de imóvel.
 
----
+## Arquitetura
 
-## 🧰 Componentes Utilizados
+```mermaid
+flowchart TD
+    A["Sensor de água"] --> D["ESP32"]
+    B["HC-SR04"] --> D
+    D --> E["Pré-processamento"]
+    E --> F["TinyML local"]
+    F --> G["Decisão autônoma"]
+    G --> H["L298N e motores"]
+    D --> I["Painel web local"]
+```
+
+O ESP32 cria a rede `DrenaHub-DrenaBot`, hospeda o painel e executa a inferência. Não é necessário roteador, computador ou serviço em nuvem durante a demonstração.
+
+## Evolução em relação ao carrinho anterior
+
+| Item | Etapa anterior | Global Solution |
+|---|---|---|
+| Sensores | HC-SR04 | HC-SR04 + sensor analógico de água |
+| IA | classificação de obstáculo | classificação multivariada de risco hídrico |
+| Entradas da IA | distância | nível, velocidade de subida e obstáculo |
+| Decisão | livre/atenção/obstáculo | normal/atenção/crítico/falha segura |
+| Interface | comandos de movimento | comandos, telemetria, probabilidades e calibração |
+| Aplicação | carrinho genérico | inspeção CitizenTech de drenagem |
+
+## Hardware
 
 | Componente | Quantidade | Função |
 |---|---:|---|
-| ESP32 ESP-WROOM-32 DevKit V1 | 1 | Controlador principal, servidor Wi-Fi e inferência TinyML |
-| Ponte H L298N | 1 | Acionamento dos dois motores |
-| Motores DC com redução | 2 | Movimentação do carrinho |
-| Rodas | 2 | Tração |
-| Roda boba | 1 | Apoio e giro livre |
-| Chassi 2WD | 1 | Estrutura física |
-| Sensor ultrassônico HC-SR04 | 1 | Medição de distância |
-| Protoboard | 1 | Organização das conexões |
-| Resistor de 1 kΩ | 1 | Divisor de tensão do ECHO |
-| Resistor de 2 kΩ | 1 | Divisor de tensão do ECHO |
-| Fios jumper | Diversos | Conexões elétricas |
-| Suporte para 4 pilhas AA | 1 | Alimentação dos motores |
-| Pilhas AA | 4 | Alimentação da ponte H e motores |
-| Power bank | 1 | Alimentação estável do ESP32 via USB |
-| Papelão | Conforme necessário | Carenagem do caminhão |
+| ESP32 ESP-WROOM-32 DevKit V1 | 1 | controle, Wi-Fi e TinyML |
+| Sensor analógico de nível/presença de água 3,3 V | 1 | novo sensor da GS |
+| HC-SR04 | 1 | distância e prevenção de colisões |
+| Ponte H L298N | 1 | acionamento dos motores |
+| Motores DC + rodas | 2 | locomoção 2WD |
+| Roda boba e chassi | 1 de cada | estrutura mecânica |
+| Resistores 1 kΩ e 2 kΩ | 1 de cada | divisor do ECHO do HC-SR04 |
+| Power bank + suporte 4 pilhas AA | 1 de cada | fontes separadas |
+| Protoboard e jumpers | diversos | conexões |
 
----
+### Pinagem
 
-## 🏎️ Chassi
+| Dispositivo | ESP32 |
+|---|---:|
+| L298N IN1 / IN2 | GPIO 25 / 26 |
+| L298N IN3 / IN4 | GPIO 33 / 32 |
+| HC-SR04 TRIG / ECHO | GPIO 18 / 19* |
+| Sensor de água AO | GPIO 34 |
+| LED de status | GPIO 2 |
+| Buzzer opcional | GPIO 27 |
 
-O projeto utiliza um **chassi 2WD**, composto por:
+\* O ECHO de 5 V deve chegar ao GPIO 19 por um divisor de tensão de 1 kΩ + 2 kΩ. O sensor de água deve ser alimentado em **3,3 V**.
 
-- 2 motores DC com redução;
-- 2 rodas motorizadas;
-- 1 roda boba;
-- Base do chassi;
-- Suporte para 4 pilhas AA.
+Veja o guia completo em [hardware/ligacoes_drenahub.md](hardware/ligacoes_drenahub.md).
 
-A configuração 2WD substituiu a proposta inicial de 4WD e foi a configuração realmente utilizada na montagem.
+## Inteligência embarcada
 
----
+A rede neural possui três entradas, uma camada oculta com seis neurônios e três saídas:
 
-## 🧠 Arquitetura Final
+- `water_level`: leitura calibrada de água entre 0 e 1;
+- `rise_rate`: aumento recente do nível entre 0 e 1;
+- `obstacle_risk`: risco calculado a partir da distância entre 0 e 1.
 
-```text
-                    iPhone
-                      │
-                      │ Wi-Fi
-                      ↓
-                    ESP32
-                  /       \
-                 /         \
-          HC-SR04           Interface Web
-              │
-              ↓
-        Média móvel
-              │
-              ↓
-        Normalização
-              │
-              ↓
-       Modelo TinyML
-              │
-              ↓
-     Livre / Atenção / Obstáculo
-              │
-              ↓
-            L298N
-              │
-              ↓
-         2 motores DC
+O pipeline de treinamento gera o cabeçalho C++ consumido diretamente pelo firmware. O repositório inclui um **baseline sintético reproduzível**, com 3.600 amostras, para validar todo o fluxo de software antes da montagem. Esse baseline obteve **99,67%** no conjunto de teste porque aprende a própria política usada na geração dos dados; portanto, essa métrica **não representa desempenho no mundo real**.
+
+Antes da apresentação, o grupo deve coletar amostras físicas nas três classes, retreinar o modelo e registrar a nova matriz de confusão. O procedimento está em [tinyml/README.md](tinyml/README.md).
+
+Além da IA, limites determinísticos funcionam como camada de segurança: falha de sensor ou água crítica sempre interrompem o avanço, mesmo que o modelo indique outra classe.
+
+## Comportamento autônomo
+
+| Situação | Resposta do DrenaBot |
+|---|---|
+| NORMAL e caminho livre | avança |
+| ATENÇÃO | para para inspeção |
+| CRÍTICO | para, recua e gira |
+| Obstáculo próximo | executa desvio |
+| Falha de sensor | para em modo seguro |
+
+## Como executar
+
+### Opção 1 — PlatformIO
+
+1. Conecte o ESP32 por USB.
+2. Abra a raiz deste repositório no VS Code com PlatformIO.
+3. Confirme a porta serial no `platformio.ini`, se necessário.
+4. Execute **Upload**.
+5. Conecte o celular à rede `DrenaHub-DrenaBot`, senha `DrenaHub2026`.
+6. Abra `http://192.168.4.1`.
+
+```bash
+pio run
+pio run --target upload
+pio device monitor --baud 115200
 ```
 
----
+### Opção 2 — Arduino IDE
 
-## 🎮 Controle Manual
+1. Instale o pacote de placas **ESP32 by Espressif Systems**.
+2. Abra `firmware/DrenaHub/DrenaHub.ino`.
+3. Selecione **ESP32 Dev Module** e a porta correta.
+4. Grave o firmware.
 
-O próprio ESP32 cria a rede:
+O código usa somente bibliotecas que já acompanham o core ESP32: `WiFi`, `WebServer` e `Preferences`.
 
-- **SSID:** `CarrinhoESP32`
-- **Senha:** `12345678`
-- **Endereço:** `192.168.4.1`
+## Calibração e demonstração
 
-O celular se conecta diretamente à rede e acessa uma página web hospedada no ESP32.
+1. Monte o sensor em suporte baixo, mas mantenha ESP32, L298N e baterias longe da água.
+2. Ligue o robô e abra o painel.
+3. Com o sensor limpo e seco, clique em **Registrar seco**.
+4. Encoste apenas a área sensível em uma esponja úmida ou bandeja rasa e clique em **Registrar molhado**.
+5. Volte ao seco, ative o modo autônomo e demonstre os três cenários.
 
-A interface possui os comandos:
+As calibrações ficam salvas na memória do ESP32. O ensaio deve usar pouca água e nunca deve colocar motores ou eletrônica dentro de uma poça.
 
-- Frente;
-- Ré;
-- Esquerda;
-- Direita;
-- Parar;
-- **Modo Manual**;
-- **Modo Autônomo TinyML**.
+## Treinamento e testes de software
 
-Não é necessário roteador ou acesso à internet.
-
----
-
-## 🤖 Modo Autônomo TinyML
-
-O HC-SR04 envia as leituras ao ESP32. Depois do pré-processamento, o modelo do Edge Impulse classifica a situação em três classes:
-
-| Classe | Situação | Comportamento |
-|---|---|---|
-| 0 | LIVRE | Segue em frente |
-| 1 | ATENÇÃO | Para |
-| 2 | OBSTÁCULO | Para, dá ré e realiza uma curva |
-
-O modelo final atingiu **85,3% de accuracy** no conjunto de validação, após uma segunda coleta de dados para melhorar o reconhecimento da classe intermediária.
-
-📘 **Documentação completa da segunda entrega:** [TinyML/README.md](./TinyML/README.md)
-
----
-
-## 🔋 Alimentação
-
-A alimentação foi separada para evitar instabilidade causada pelo consumo dos motores:
-
-- **Power bank → ESP32 via USB**;
-- **4 pilhas AA → L298N → motores**;
-- **GND do ESP32 e GND do L298N em comum**.
-
----
-
-## 📏 Sensor HC-SR04
-
-| HC-SR04 | ESP32 |
-|---|---|
-| VCC | 5V |
-| GND | GND |
-| TRIG | GPIO 18 |
-| ECHO | GPIO 19 através de divisor de tensão |
-
-O divisor utiliza **1 kΩ e 2 kΩ** antes da entrada do GPIO 19.
-
----
-
-## 🔌 Ligações do L298N
-
-| ESP32 | L298N |
-|---|---|
-| GPIO 25 | IN1 |
-| GPIO 26 | IN2 |
-| GPIO 33 | IN3 |
-| GPIO 32 | IN4 |
-| GND | GND |
-
-- OUT1 / OUT2 → motor esquerdo;
-- OUT3 / OUT4 → motor direito;
-- ENA e ENB permanecem habilitados pelos jumpers na montagem utilizada.
-
----
-
-## 📁 Estrutura do Repositório
-
-```text
-ProjetoCarrinho/
-│
-├── README.md
-├── cad/
-│   └── arquivos CAD da etapa inicial
-│
-├── hardware/
-│   ├── arquitetura.md
-│   └── componentes.md
-│
-├── organizacao/
-│   ├── Backlog.md
-│   ├── Dependencias.md
-│   ├── Kanban.md
-│   ├── MVP.md
-│   └── MoSCoW.md
-│
-├── src/
-│   └── carrinho_esp32.ino
-│
-└── TinyML/
-    ├── README.md
-    ├── dados/
-    │   └── dados_carrinho.csv
-    ├── evidencias/
-    │   ├── 01-importacao-csv.png
-    │   ├── 02-create-impulse.png
-    │   ├── 03-deployment-int8.png
-    │   ├── 04-treinamento-inicial-71.png
-    │   └── 05-treinamento-final-85-3.png
-    └── modelo/
-        └── biblioteca Arduino gerada pelo Edge Impulse
+```bash
+python -m pip install -r tinyml/requirements.txt
+python tinyml/train_drenahub_model.py
+g++ -std=c++17 tests/model_smoke.cpp -o model_smoke
+./model_smoke
 ```
 
-> A pasta `cad/` foi mantida como material da etapa inicial e não representa a configuração mecânica final utilizada no protótipo.
+Para coletar dados reais pela serial:
 
----
+```bash
+python tinyml/collect_serial.py --port COM3 --label NORMAL --seconds 90
+python tinyml/collect_serial.py --port COM3 --label ATENCAO --seconds 90
+python tinyml/collect_serial.py --port COM3 --label CRITICO --seconds 90
+python tinyml/train_drenahub_model.py --input tinyml/data/drenahub_real.csv
+```
 
-## 💻 Firmware
+## Estrutura do repositório
 
-O firmware final está em:
+```text
+.
+├── firmware/DrenaHub/       # firmware e modelo C++ embarcado
+├── hardware/                # componentes, arquitetura e ligações
+├── tinyml/                  # dataset, coleta, treinamento e métricas
+├── tests/                   # smoke test da inferência C++
+├── cad/                     # suporte ajustável do novo sensor
+├── docs/                    # ficha técnica, testes e checklist
+├── evidencias/              # roteiro para fotos e vídeo reais
+├── organizacao/             # gestão e histórico das etapas
+├── src/                     # firmware anterior preservado
+└── TinyML/                  # etapa TinyML anterior preservada
+```
 
-**[src/carrinho_esp32.ino](./src/carrinho_esp32.ino)**
+## Estado da entrega
 
-Ele reúne:
+| Entregável | Estado |
+|---|---|
+| Firmware do DrenaBot | concluído, compilado e versionado |
+| Painel web responsivo | concluído e embarcado no firmware |
+| Pipeline TinyML reproduzível | concluído |
+| Baseline e teste C++ | concluídos |
+| Documentação técnica e checklist | concluídos |
+| Montagem do novo sensor | pendente de execução física pelo grupo |
+| Coleta e retreinamento com dados reais | pendente de execução física pelo grupo |
+| Fotos, testes físicos e vídeo de até 6 minutos | pendentes de execução física pelo grupo |
 
-- controle dos motores;
-- servidor Wi-Fi;
-- interface web;
-- leitura do HC-SR04;
-- média móvel;
-- normalização;
-- inferência do modelo Edge Impulse;
-- modo manual;
-- modo autônomo TinyML;
-- rotina de segurança para obstáculo muito próximo.
+Não são apresentados resultados físicos inventados. Os itens pendentes dependem do carrinho e estão detalhados no [checklist oficial da entrega](docs/CHECKLIST_ENTREGA.md).
 
----
+A compilação para ESP32 e os testes automatizados foram aprovados; veja [docs/VALIDACAO_SOFTWARE.md](docs/VALIDACAO_SOFTWARE.md).
 
-## 🧪 Evolução do Modelo
+## Vídeo
 
-No primeiro treinamento, o modelo atingiu **71,0% de accuracy** e não conseguiu reconhecer corretamente a classe 1 (Atenção).
+**Link:** adicionar aqui após a gravação e antes da submissão.
 
-Após analisar a matriz de confusão, foram coletadas mais amostras na faixa intermediária. O modelo foi treinado novamente e atingiu:
+O roteiro de até seis minutos está pronto em [docs/ROTEIRO_VIDEO.md](docs/ROTEIRO_VIDEO.md).
 
-- **Accuracy:** 85,3%;
-- **Loss:** 0,50;
-- **Weighted Precision:** 0,88;
-- **Weighted Recall:** 0,85;
-- **Weighted F1 Score:** 0,84;
-- **AUC:** 1,00.
+## Relação com CitizenTech
 
-As evidências e o passo a passo completo estão disponíveis na pasta **[TinyML](./TinyML/README.md)**.
+O DrenaHub transforma um robô educacional em uma ferramenta de inspeção preventiva. A proposta apoia cidades mais resilientes ao tornar visíveis pequenos acúmulos de água antes que causem perda de estoque, interdição de garagem, dano a equipamentos ou risco a pessoas. O MVP se conecta principalmente aos ODS 6, 9, 11 e 13.
+
+## Segurança e limitações
+
+- Este protótipo **não substitui** laudo técnico, sistema de drenagem ou alerta oficial.
+- Não opere o carrinho em enchentes, água profunda, rede elétrica exposta ou ambiente de risco.
+- Valide a polaridade e mantenha GND comum entre ESP32 e L298N.
+- Nunca aplique 5 V diretamente a um GPIO do ESP32.
+- A assertividade real só pode ser declarada após testes físicos documentados.

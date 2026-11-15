@@ -1,135 +1,57 @@
-# 🧠 Arquitetura do Projeto
+# Arquitetura do DrenaHub
 
-A versão executada do projeto utiliza **um único ESP32 ESP-WROOM-32** como controlador principal. O Arduino Mega, o joystick físico, um segundo ESP32 e a comunicação ESP-NOW, considerados na concepção inicial, **não fazem parte da montagem final desta etapa**.
+## Visão geral
 
-## 📡 Fluxo de Controle
+O DrenaBot 01 usa um único ESP32 como controlador, servidor web e dispositivo de inferência. O projeto reaproveita a base 2WD das etapas anteriores e adiciona o sensor analógico de água como novo elemento da Global Solution.
 
-O ESP32 cria uma rede Wi-Fi própria e hospeda uma página web de controle.
-
-```text
-iPhone / navegador
-        ↓
-Wi-Fi "CarrinhoESP32"
-        ↓
-ESP32 ESP-WROOM-32
-        ↓
-Ponte H L298N
-        ↓
-2 motores DC
+```mermaid
+flowchart TD
+    W["Sensor de água"] --> P["Filtro e calibração"]
+    U["HC-SR04"] --> P
+    P --> M["Rede TinyML"]
+    M --> S["Regras de segurança"]
+    S --> C["Controle autônomo"]
+    C --> L["L298N"]
+    L --> R["Motores 2WD"]
+    P --> D["Painel web"]
 ```
 
-O usuário acessa o endereço **192.168.4.1** no navegador e utiliza os botões da interface para executar os comandos:
+## Fluxo de dados
 
-- Frente;
-- Ré;
-- Esquerda;
-- Direita;
-- Parar.
+1. O sensor de água é lido pelo ADC1 do GPIO 34.
+2. Uma média móvel de oito amostras reduz oscilações.
+3. Os valores seco e molhado, salvos na memória, convertem o ADC em nível de 0 a 1.
+4. A diferença entre leituras recentes gera a velocidade de subida.
+5. O HC-SR04 mede distância; o firmware a transforma em risco de obstáculo.
+6. A rede neural recebe as três variáveis e retorna as probabilidades de NORMAL, ATENÇÃO e CRÍTICO.
+7. Regras determinísticas tratam falha de sensor, nível extremo e colisão iminente.
+8. O modo autônomo decide avançar, parar ou executar manobra de afastamento.
 
-A comunicação ocorre diretamente entre o celular e o ESP32, sem necessidade de roteador ou acesso à internet.
+## Modos de operação
 
----
-
-## 🏎️ Estrutura Mecânica
-
-O projeto utiliza um **chassi 2WD**, composto por:
-
-- 2 motores DC com redução;
-- 2 rodas motorizadas;
-- 1 roda boba para apoio e giro;
-- Base do chassi;
-- Suporte para 4 pilhas AA.
-
-A configuração 2WD substituiu a proposta inicial de um chassi 4WD. Ela atende aos movimentos necessários com menor peso e menor complexidade.
-
-A carenagem do protótipo foi construída em papelão com aparência inspirada em um caminhão da Volkswagen Caminhões e Ônibus.
-
----
-
-## ⚙️ Controle dos Motores
-
-A ponte H utilizada é a **L298N**.
-
-| Função | ESP32 | L298N |
+| Modo | Objetivo | Comandos |
 |---|---|---|
-| Motor esquerdo A | GPIO 25 | IN1 |
-| Motor esquerdo B | GPIO 26 | IN2 |
-| Motor direito A | GPIO 33 | IN3 |
-| Motor direito B | GPIO 32 | IN4 |
-| Referência elétrica | GND | GND |
+| Manual | posicionamento e teste | frente, ré, esquerda, direita e parar |
+| Autônomo | inspeção e reação local | decisões da IA com camada de segurança |
 
-Os jumpers **ENA** e **ENB** permanecem instalados na configuração básica utilizada, mantendo os canais habilitados.
+A troca de modo ocorre no painel servido em `192.168.4.1`.
 
-### Sentido utilizado no firmware
+## Alimentação
 
-- Frente: os dois motores avançam;
-- Ré: os dois motores invertem;
-- Esquerda: motores giram em sentidos opostos para realizar a curva;
-- Direita: motores giram em sentidos opostos para realizar a curva;
-- Parar: todas as entradas da ponte H ficam em nível baixo.
+- Power bank via USB: ESP32 e sensores.
+- Quatro pilhas AA: entrada da L298N e motores.
+- GND do ESP32 e da L298N: obrigatoriamente comum.
 
----
+A separação reduz reinicializações causadas pela corrente de partida dos motores.
 
-## 📏 Sensor Ultrassônico HC-SR04
+## Segurança funcional
 
-O sensor HC-SR04 foi instalado na parte frontal do carrinho para medir a distância até obstáculos.
+A inferência não é a única proteção. O firmware prioriza parada segura quando:
 
-| HC-SR04 | Ligação |
-|---|---|
-| VCC | 5V do ESP32 |
-| GND | GND |
-| TRIG | GPIO 18 |
-| ECHO | GPIO 19 por divisor de tensão |
+- o HC-SR04 não retorna eco;
+- o ADC satura;
+- o nível calibrado chega a 75%;
+- a distância chega a 10 cm;
+- o sistema ainda não acumulou amostras suficientes.
 
-Como o sinal ECHO do HC-SR04 pode chegar a aproximadamente 5 V, foi utilizado um divisor resistivo antes do GPIO 19:
-
-```text
-ECHO do HC-SR04
-      ↓
-     1 kΩ
-      ↓
-      +────────→ GPIO 19
-      ↓
-     2 kΩ
-      ↓
-     GND
-```
-
----
-
-## 🔋 Alimentação
-
-A alimentação foi separada para melhorar a estabilidade do sistema:
-
-```text
-Power bank
-   ↓ USB
- ESP32
-
-4 pilhas AA
-    ↓
-  L298N
-    ↓
-2 motores DC
-```
-
-O **GND do ESP32 e o GND do L298N são interligados**, garantindo uma referência elétrica comum.
-
-Essa configuração evita alimentar os motores diretamente pelo ESP32 e reduz problemas causados por quedas de tensão durante a partida dos motores.
-
----
-
-## 📐 Fixação dos Componentes
-
-| Componente | Posição / Fixação |
-|---|---|
-| ESP32 | Sobre a base do chassi, fixado de forma a permitir acesso à porta USB |
-| L298N | Sobre a base do chassi, próximo aos motores |
-| HC-SR04 | Parte frontal do carrinho |
-| Suporte 4xAA | Base do chassi |
-| Power bank | Posicionado sobre o chassi/carenagem conforme distribuição de peso |
-| Motores DC | Laterais do chassi 2WD |
-| Roda boba | Ponto de apoio livre do chassi |
-| Carenagem | Estrutura em papelão sobre a base |
-
-> A evolução com **TinyML foi implementada** e está documentada em [TinyML/README.md](../TinyML/README.md).
+O protótipo deve tocar somente uma esponja úmida ou bandeja rasa com a área sensível do sensor. A eletrônica não pode entrar na água.

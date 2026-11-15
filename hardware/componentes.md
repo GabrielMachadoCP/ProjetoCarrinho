@@ -1,71 +1,47 @@
-# 🧰 Componentes Utilizados
+# Componentes do DrenaBot 01
 
-Este documento lista os componentes efetivamente utilizados na montagem do carrinho.
+## Materiais
 
-| Componente | Quantidade | Função |
-|---|---:|---|
-| ESP32 ESP-WROOM-32 DevKit V1 | 1 | Microcontrolador principal, servidor Wi-Fi e controle do sistema |
-| Ponte H L298N | 1 | Acionamento dos dois motores DC |
-| Motores DC com redução | 2 | Movimentação do carrinho |
-| Rodas | 2 | Tração |
-| Roda boba | 1 | Apoio e liberdade de giro |
-| Chassi 2WD | 1 | Estrutura mecânica principal |
-| Sensor ultrassônico HC-SR04 | 1 | Medição da distância até obstáculos |
-| Protoboard | 1 | Apoio às conexões do circuito |
-| Resistor 1 kΩ | 1 | Parte do divisor de tensão do ECHO |
-| Resistor 2 kΩ | 1 | Parte do divisor de tensão do ECHO |
-| Fios jumper | Diversos | Conexões entre ESP32, sensor e ponte H |
-| Suporte para 4 pilhas AA | 1 | Alimentação do conjunto de motores |
-| Pilhas AA | 4 | Fonte da ponte H e motores |
-| Power bank | 1 | Alimentação do ESP32 via USB |
-| Papelão | Conforme necessário | Construção da carenagem do caminhão |
+| Componente | Qtd. | Papel no protótipo | Situação |
+|---|---:|---|---|
+| ESP32 ESP-WROOM-32 DevKit V1 | 1 | controle, Wi-Fi e TinyML | reaproveitado |
+| Sensor analógico de nível/presença de água | 1 | detectar contato e intensidade de água | **novo sensor** |
+| HC-SR04 | 1 | medir distância | reaproveitado |
+| L298N | 1 | controlar os motores | reaproveitado |
+| Motor DC com redução | 2 | tração | reaproveitado |
+| Rodas + roda boba | 3 | deslocamento 2WD | reaproveitado |
+| Chassi 2WD | 1 | base mecânica | reaproveitado |
+| Resistores 1 kΩ e 2 kΩ | 1 de cada | divisor de tensão do ECHO | reaproveitados |
+| Protoboard e jumpers | diversos | interligação | reaproveitados |
+| Power bank | 1 | ESP32 e sensores | reaproveitado |
+| Suporte 4xAA + pilhas | 1 | motores | reaproveitado |
+| Suporte do sensor | 1 | manter somente a ponta sensível baixa | novo; arquivo CAD incluso |
+| Buzzer ativo 3,3 V | 1 | alerta sonoro | opcional |
 
----
+## Especificação de compra do novo sensor
 
-## 🔌 Pinagem Utilizada
+Procure por **sensor analógico de nível de água 3,3–5 V para Arduino/ESP32**, normalmente uma placa estreita com trilhas expostas e pinos `S/+/-` ou `AO/VCC/GND`.
 
-### Ponte H L298N
+Para este firmware, o sensor precisa oferecer:
 
-| Entrada L298N | GPIO ESP32 |
-|---|---:|
-| IN1 | 25 |
-| IN2 | 26 |
-| IN3 | 33 |
-| IN4 | 32 |
+- saída analógica;
+- alimentação compatível com 3,3 V;
+- leitura inferior a 4095 no ADC do ESP32;
+- área sensível que possa tocar pouca água sem submergir os conectores.
 
-- OUT1 / OUT2 → motor esquerdo;
-- OUT3 / OUT4 → motor direito;
-- ENA / ENB → mantidos habilitados pelos jumpers.
+Não use módulo que forneça apenas saída digital. Sensores resistivos simples oxidam com uso prolongado; são adequados à prova acadêmica, mas a versão comercial deverá migrar para sensor capacitivo, boia ou sonda industrial conforme o ambiente.
 
-### HC-SR04
+## Pinagem resumida
 
-| Pino HC-SR04 | ESP32 |
+| Origem | Destino |
 |---|---|
-| VCC | 5V |
-| GND | GND |
-| TRIG | GPIO 18 |
-| ECHO | GPIO 19 através de divisor 1 kΩ + 2 kΩ |
+| Sensor de água VCC | 3V3 do ESP32 |
+| Sensor de água GND | GND |
+| Sensor de água AO/S | GPIO 34 |
+| HC-SR04 TRIG | GPIO 18 |
+| HC-SR04 ECHO | GPIO 19 por divisor 1 kΩ/2 kΩ |
+| L298N IN1 / IN2 | GPIO 25 / 26 |
+| L298N IN3 / IN4 | GPIO 33 / 32 |
+| ESP32 GND | L298N GND |
 
----
-
-## 🔋 Alimentação Utilizada
-
-- **ESP32:** power bank conectado pela porta USB;
-- **Motores:** 4 pilhas AA conectadas à entrada de alimentação da L298N;
-- **Referência comum:** GND do ESP32 conectado ao GND da L298N.
-
----
-
-## ❌ Componentes da proposta inicial que não foram utilizados
-
-A primeira concepção do projeto considerava outros componentes que foram descartados na montagem real. Por isso, eles não fazem parte desta versão da documentação:
-
-- Arduino Mega 2560;
-- Joystick Shield;
-- Segundo ESP32 dedicado à transmissão;
-- Comunicação ESP-NOW entre dois ESP32;
-- Quatro motores;
-- Chassi 4WD;
-- LEDs traseiros de freio.
-
-> A etapa de **TinyML foi concluída**. O dataset, treinamento, evidências e biblioteca do Edge Impulse estão documentados em [TinyML/README.md](../TinyML/README.md).
+As ligações detalhadas e o procedimento de validação estão em [ligacoes_drenahub.md](ligacoes_drenahub.md).
