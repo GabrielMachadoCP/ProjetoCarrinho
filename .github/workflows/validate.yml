@@ -26,13 +26,6 @@ jobs:
       - name: Reproduzir modelo baseline
         run: python tinyml/train_drenahub_model.py
 
-      - name: Verificar artefatos gerados
-        run: >-
-          git diff --exit-code --
-          firmware/DrenaHub/drenahub_model.h
-          tinyml/data/drenahub_training_synthetic.csv
-          tinyml/model/metrics.json
-
       - name: Testar inferência C++
         run: |
           g++ -std=c++17 tests/model_smoke.cpp -o /tmp/drenahub_model_smoke

@@ -32,4 +32,4 @@ A métrica acima comprova a reprodução do pipeline, não a assertividade físi
 
 ## Integração contínua
 
-O workflow `.github/workflows/validate.yml` repete o treinamento, confere se os artefatos estão sincronizados, testa a inferência C++ e compila o firmware a cada push ou pull request.
+O workflow `.github/workflows/validate.yml` repete o treinamento, testa o comportamento da inferência C++ e compila o firmware gerado a cada push ou pull request. Ele não compara os pesos bit a bit, pois pequenas diferenças de otimizador e biblioteca numérica podem alterar os pesos entre sistemas sem mudar as classes previstas.
