@@ -49,7 +49,7 @@ O ESP32 cria a rede `DrenaHub-DrenaBot`, hospeda a Central Web e executa a infer
 
 | Item | Etapa anterior | Global Solution |
 |---|---|---|
-| Sensores | HC-SR04 | HC-SR04 + sensor analógico de água |
+| Sensores | HC-SR04 | HC-SR04 + sensor analógico de água (sensor adicionado para a GS)|
 | IA | classificação de obstáculo | classificação multivariada de risco hídrico |
 | Entradas da IA | distância | nível, velocidade de subida e obstáculo |
 | Decisão | livre/atenção/obstáculo | normal/atenção/crítico/falha segura |
