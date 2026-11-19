@@ -25,6 +25,10 @@ O recorte do MVP é intencionalmente simples e demonstrável:
 
 O MVP usa comunicação local entre o ESP32 e o celular. O mesmo núcleo pode evoluir para sensores fixos, rotas maiores, histórico em nuvem, notificações remotas e manutenção preditiva — sem limitar a solução a um único tipo de imóvel.
 
+## Vídeo
+
+[**Link:** adicionar aqui após a gravação e antes da submissão.](https://www.youtube.com/watch?v=7y7U7v0JTDU&t=8s)
+
 ## Arquitetura
 
 ```mermaid
@@ -206,10 +210,6 @@ python tinyml/train_drenahub_model.py --input tinyml/data/drenahub_real.csv
 Não são apresentados resultados físicos inventados. Os itens pendentes dependem do carrinho e estão detalhados no [checklist oficial da entrega](docs/CHECKLIST_ENTREGA.md).
 
 A compilação para ESP32 e os testes automatizados foram aprovados; veja [docs/VALIDACAO_SOFTWARE.md](docs/VALIDACAO_SOFTWARE.md).
-
-## Vídeo
-
-**Link:** adicionar aqui após a gravação e antes da submissão.
 
 ## Relação com CitizenTech
 
