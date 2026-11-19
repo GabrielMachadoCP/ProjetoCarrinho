@@ -10,6 +10,10 @@
 | Lourenzo Ramos | 99951 |
 | Vitor Hugo Rodrigues | 97758 |
 
+## Vídeo
+
+[**Video Demonstração**](https://www.youtube.com/watch?v=7y7U7v0JTDU&t=8s)
+
 ## O projeto
 
 O **DrenaHub** é uma proposta de monitoramento preventivo de drenagem para condomínios, galpões, estacionamentos, centros logísticos e outras áreas privadas ou públicas. O primeiro dispositivo do ecossistema, o **DrenaBot 01**, evolui o carrinho inteligente desenvolvido nas etapas anteriores: ele percorre uma área, mede a presença de água e identifica obstáculos, classifica o risco localmente com TinyML e envia o evento para a **Central DrenaHub**, aberta no celular.
@@ -24,10 +28,6 @@ O recorte do MVP é intencionalmente simples e demonstrável:
 6. permitir patrulha autônoma e controle manual pelo mesmo painel.
 
 O MVP usa comunicação local entre o ESP32 e o celular. O mesmo núcleo pode evoluir para sensores fixos, rotas maiores, histórico em nuvem, notificações remotas e manutenção preditiva — sem limitar a solução a um único tipo de imóvel.
-
-## Vídeo
-
-[**Link:** adicionar aqui após a gravação e antes da submissão.](https://www.youtube.com/watch?v=7y7U7v0JTDU&t=8s)
 
 ## Arquitetura
 
