@@ -132,22 +132,8 @@ Ao confirmar o modo autônomo, o ESP32 força uma nova leitura dos sensores e ex
 
 ## Como executar
 
-### Opção 1 — PlatformIO
 
-1. Conecte o ESP32 por USB.
-2. Abra a raiz deste repositório no VS Code com PlatformIO.
-3. Confirme a porta serial no `platformio.ini`, se necessário.
-4. Execute **Upload**.
-5. Conecte o celular à rede `DrenaHub-DrenaBot`, senha `DrenaHub2026`.
-6. Abra `http://192.168.4.1`.
-
-```bash
-pio run
-pio run --target upload
-pio device monitor --baud 115200
-```
-
-### Opção 2 — Arduino IDE
+### Arduino IDE
 
 1. Instale o pacote de placas **ESP32 by Espressif Systems**.
 2. Abra `firmware/DrenaHub/DrenaHub.ino`.
@@ -225,17 +211,13 @@ A compilação para ESP32 e os testes automatizados foram aprovados; veja [docs/
 
 **Link:** adicionar aqui após a gravação e antes da submissão.
 
-O roteiro de até seis minutos está pronto em [docs/ROTEIRO_VIDEO.md](docs/ROTEIRO_VIDEO.md).
-
 ## Relação com CitizenTech
 
 O DrenaHub transforma um robô educacional em uma ferramenta de inspeção preventiva. A proposta apoia cidades mais resilientes ao tornar visíveis pequenos acúmulos de água antes que causem perda de estoque, interdição de garagem, dano a equipamentos ou risco a pessoas. O MVP se conecta principalmente aos ODS 6, 9, 11 e 13.
 
 ## Segurança e limitações
 
-- Este protótipo **não substitui** laudo técnico, sistema de drenagem ou alerta oficial.
 - Não opere o carrinho em enchentes, água profunda, rede elétrica exposta ou ambiente de risco.
 - Valide a polaridade e mantenha GND comum entre ESP32 e L298N.
 - Nunca aplique 5 V diretamente a um GPIO do ESP32.
-- A assertividade real só pode ser declarada após testes físicos documentados.
 - O alerta deste MVP é local: não é uma notificação em nuvem e exige conexão à rede do ESP32.
