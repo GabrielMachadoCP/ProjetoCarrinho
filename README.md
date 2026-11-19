@@ -12,7 +12,7 @@
 
 ## Vídeo
 
-[**Video Demonstração**](https://www.youtube.com/watch?v=7y7U7v0JTDU&t=8s)
+[**Video Demonstração**](https://www.youtube.com/watch?v=7y7U7v0JTDU)
 
 ## O projeto
 
